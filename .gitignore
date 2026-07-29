@@ -1,0 +1,23 @@
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Environment files
+.env
+.env.*
+
+# Kubernetes credentials
+kubeconfig*
+credentials*
+htpasswd*
+
+# Plaintext secrets
+*-secret.yaml
+!*-sealed.yaml
+!*-sealed-secret.yaml
+
+# Bitnami sealed-secrets local keys
+.bitnami/

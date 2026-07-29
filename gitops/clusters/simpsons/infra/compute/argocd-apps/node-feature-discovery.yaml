@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: compute
+  name: node-feature-discovery
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
   labels:
@@ -12,8 +12,8 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: gitops/clusters/simpsons/infra/compute/
-    repoURL: https://github.com/giofontana/gitops-ocp-infra.git
+    path: gitops/clusters/simpsons/infra/compute/node-feature-discovery/aggregate
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
     targetRevision: main
   syncPolicy:
     automated:
