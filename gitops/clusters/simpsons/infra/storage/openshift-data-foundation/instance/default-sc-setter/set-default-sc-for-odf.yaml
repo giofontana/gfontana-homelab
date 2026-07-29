@@ -3,6 +3,8 @@ kind: Job
 metadata:
   name: set-default-sc-for-odf
   generateName: set-default-sc-for-odf-
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
 spec:
   template:
     spec:
