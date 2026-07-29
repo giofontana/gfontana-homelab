@@ -11,6 +11,13 @@ spec:
   destination:
     namespace: default
     server: https://kubernetes.default.svc
+  ignoreDifferences:
+    - group: ocs.openshift.io
+      kind: StorageCluster
+      name: ocs-storagecluster
+      namespace: openshift-storage
+      jqPathExpressions:
+        - .spec
   project: default
   source:
     path: gitops/clusters/simpsons/infra/storage/openshift-data-foundation/aggregate
@@ -20,3 +27,6 @@ spec:
     automated:
       prune: false
       selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
