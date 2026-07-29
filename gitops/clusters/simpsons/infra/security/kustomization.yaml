@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ./cert-manager-certificates
   - ./cert-manager-operator/aggregate
-  - ./sealed-secrets-operator/operator
+#  - ./sealed-secrets-operator/operator --> Intentionally removed. Sealed Secrets are managed separately.
