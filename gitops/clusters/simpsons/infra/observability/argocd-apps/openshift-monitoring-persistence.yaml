@@ -11,6 +11,13 @@ spec:
   destination:
     namespace: default
     server: https://kubernetes.default.svc
+  ignoreDifferences:
+    - group: ""
+      kind: ConfigMap
+      name: cluster-monitoring-config
+      namespace: openshift-monitoring
+      jqPathExpressions:
+        - .data."config.yaml"
   project: default
   source:
     path: gitops/clusters/simpsons/infra/observability/openshift-monitoring-persistence/
@@ -22,4 +29,4 @@ spec:
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
-      - ServerSideDiff=true
+      - RespectIgnoreDifferences=true
