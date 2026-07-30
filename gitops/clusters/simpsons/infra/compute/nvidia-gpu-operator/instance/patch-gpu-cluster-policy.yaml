@@ -6,6 +6,6 @@ spec:
   dcgmExporter:
     config:
       name: ''
-    enabled: false
+    enabled: true
     serviceMonitor:
       enabled: true
