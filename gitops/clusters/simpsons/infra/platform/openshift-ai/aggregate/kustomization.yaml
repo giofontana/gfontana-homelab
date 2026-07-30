@@ -8,3 +8,12 @@ commonAnnotations:
 resources:
   - ../operator
   - ../instance
+
+patches:
+  - target:
+      kind: OdhDashboardConfig
+      name: odh-dashboard-config
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-options
+        value: "SkipDryRunOnMissingResource=true,ServerSideApply=true"

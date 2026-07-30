@@ -6,3 +6,4 @@ namespace: redhat-ods-applications
 resources:
   - datasciencecluster.yaml
   - default-profile-nvidia-gpu.yaml
+  - odhdashboardconfig.yaml
