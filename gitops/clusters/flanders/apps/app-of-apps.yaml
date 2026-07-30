@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: app-of-apps-workloads
+  name: app-of-apps-workloads-flanders
   namespace: argocd-flanders
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
