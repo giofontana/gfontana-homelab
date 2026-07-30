@@ -1,0 +1,112 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: esx-01
+  namespace: vmware
+  labels:
+    app: esx-01
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: dv-esx-01-rootdisk-ksu648
+      spec:
+        preallocation: true
+        source:
+          blank: {}
+        storage:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 150Gi
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          volumeMode: Block
+    - metadata:
+        name: dv-esx-01-datastore-qkiwdk
+      spec:
+        source:
+          blank: {}
+        storage:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 1Ti
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          volumeMode: Block
+    - metadata:
+        name: dv-esx-01-vcsa-ubf1d2
+      spec:
+        source:
+          blank: {}
+        storage:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 800Gi
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          volumeMode: Block
+  runStrategy: RerunOnFailure
+  template:
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: 36
+          model: host-passthrough
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - bootOrder: 1
+              disk:
+                bus: sata
+              name: rootdisk
+            - bootOrder: 2
+              disk:
+                bus: sata
+              name: vcsa
+            - bootOrder: 3
+              disk:
+                bus: sata
+              name: datastore
+            - bootOrder: 4
+              cdrom:
+                bus: sata
+              name: cdrom
+          interfaces:
+            - bridge: {}
+              macAddress: '02:b4:db:d5:e1:bd'
+              model: e1000e
+              name: vlan102
+              state: up
+          rng: {}
+        features:
+          acpi: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi: {}
+          serial: fa8ac43c-9638-46c5-b1d0-97f73a765669
+          uuid: 0cb72dc2-00a3-433c-86e9-f91ee70b421c
+        machine:
+          type: pc-q35-rhel9.6.0
+        memory:
+          guest: 96Gi
+        resources: {}
+      networks:
+        - multus:
+            networkName: default/vlan102
+          name: vlan102
+      volumes:
+        - dataVolume:
+            name: dv-esx-01-rootdisk-ksu648
+          name: rootdisk
+        - dataVolume:
+            name: dv-esx-01-datastore-qkiwdk
+          name: datastore
+        - dataVolume:
+            name: dv-esx-01-vcsa-ubf1d2
+          name: vcsa
