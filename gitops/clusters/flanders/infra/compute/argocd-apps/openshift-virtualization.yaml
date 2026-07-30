@@ -9,11 +9,11 @@ metadata:
     gitops.ownedBy: default
 spec:
   destination:
-    namespace: default
-    server: https://kubernetes.default.svc
+    namespace: argocd-manager
+    server: https://api.flanders.lab.gfontana.me:6443
   project: default
   source:
-    path: gitops/clusters/simpsons/infra/compute/openshift-virtualization/aggregate
+    path: gitops/clusters/flanders/infra/compute/openshift-virtualization/aggregate
     repoURL: https://github.com/giofontana/gfontana-homelab.git
     targetRevision: main
   syncPolicy:
