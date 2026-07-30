@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: media-pvc
+  namespace: frigate
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: media-pv
+  storageClassName: no-provisioner
+  volumeMode: Filesystem

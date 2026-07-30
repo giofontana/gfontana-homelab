@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: frigate
+
+resources:
+  - namespace.yaml
+  - frigate-config-secret-sealed.yaml
+  - db-pvc.yaml
+  - media-pv.yaml
+  - media-pvc.yaml
+  - rolebinding.yaml
+  - route.yaml
+  - service.yaml
+  - sa.yaml

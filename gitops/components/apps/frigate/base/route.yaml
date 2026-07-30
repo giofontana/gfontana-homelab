@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: frigate-web
+  namespace: frigate
+spec:
+  host: frigate.example.com
+  to:
+    kind: Service
+    name: frigate-service
+    weight: 100
+  port:
+    targetPort: https-ui
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
