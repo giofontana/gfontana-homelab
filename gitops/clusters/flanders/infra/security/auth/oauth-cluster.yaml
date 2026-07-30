@@ -14,7 +14,7 @@ spec:
       mappingMethod: claim
       type: GitHub
       github:
-        clientID: Ov23lis1vDMZlwCtx7qw
+        clientID: Ov23liYg7wRRdc63kTrD
         clientSecret:
           name: github-secret
         organizations:
