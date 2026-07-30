@@ -3,5 +3,4 @@ kind: Kustomization
 
 resources:
   - ./argocd-flanders/
-  - ./argocd-infra/
-  - ./argocd-workloads/
+  - ./argocd-simpsons/
