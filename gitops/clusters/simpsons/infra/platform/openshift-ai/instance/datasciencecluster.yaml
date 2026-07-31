@@ -35,5 +35,7 @@ spec:
       managementState: Managed
     llamastackoperator:
       managementState: Managed
+    mlflowoperator:
+      managementState: Managed
     trainingoperator:
       managementState: Managed
