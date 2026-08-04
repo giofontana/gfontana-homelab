@@ -23,6 +23,8 @@ spec:
       containers:
       - name: frigate
         image: ghcr.io/blakeblackshear/frigate:stable
+        securityContext:
+          privileged: true
         env:
         - name: FRIGATE_RTSP_PASSWORD
           value: "password"
