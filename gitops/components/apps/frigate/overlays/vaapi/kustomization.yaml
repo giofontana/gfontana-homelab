@@ -4,11 +4,6 @@ kind: Kustomization
 namespace: frigate
 
 resources:
-  - namespace.yaml
-  - db-pvc.yaml
-  - media-pv.yaml
-  - media-pvc.yaml
+  - ../../base
+  - deployment.yaml
   - rolebinding.yaml
-  - route.yaml
-  - service.yaml
-  - sa.yaml
