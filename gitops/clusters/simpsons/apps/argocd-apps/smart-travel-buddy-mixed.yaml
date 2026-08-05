@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: workloads
+  namespace: openshift-gitops
+spec:
+  description: Security boundary for the engineering team applications.
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: 'https://kubernetes.default.svc'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: smart-travel-buddy-mixed
+  namespace: openshift-gitops
+spec:
+  project: workloads
+  source:
+    path: gitops/clusters/simpsons/apps/smart-travel-buddy/overlays/mixed
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: smart-travel-buddy
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true      
+  ignoreDifferences:
+    - group: kubevirt.io
+      kind: VirtualMachine
+      jsonPointers:
+        - /spec/template/spec/domain/devices/interfaces/0/macAddress
+
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-descheduler-operator
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+  labels:
+    gitops.ownedBy: default
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: gitops/clusters/simpsons/infra/compute/kube-descheduler-operator/aggregate
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
