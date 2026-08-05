@@ -7,7 +7,7 @@ spec:
   host: vault-ui-vault.apps.simpsons.lab.gfontana.me
   to:
     kind: Service
-    name: vault
+    name: hashicorp-vault
     weight: 100
   port:
     targetPort: 8200
