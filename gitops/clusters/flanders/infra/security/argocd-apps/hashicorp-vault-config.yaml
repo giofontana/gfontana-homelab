@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hashicorp-vault-config
+  namespace: argocd-flanders
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+  labels:
+    gitops.ownedBy: default
+spec:
+  destination:
+    namespace: argocd-manager
+    server: https://api.flanders.lab.gfontana.me:6443
+  project: default
+  source:
+    path: gitops/clusters/flanders/infra/security/hashicorp-vault/aggregate
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

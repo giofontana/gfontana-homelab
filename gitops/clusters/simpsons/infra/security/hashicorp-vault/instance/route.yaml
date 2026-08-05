@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: vault-ui
+  namespace: vault
+spec:
+  host: vault-ui-vault.apps.simpsons.lab.gfontana.me
+  to:
+    kind: Service
+    name: vault
+    weight: 100
+  port:
+    targetPort: 8200
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

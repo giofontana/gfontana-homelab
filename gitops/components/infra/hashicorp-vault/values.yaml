@@ -1,0 +1,12 @@
+global:
+  openshift: true
+
+server:
+  dev:
+    enabled: true
+  image:
+    repository: docker.io/hashicorp/vault
+
+injector:
+  image:
+    repository: docker.io/hashicorp/vault-k8s
