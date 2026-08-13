@@ -12,7 +12,7 @@ spec:
     name: cloudflare-api-token
     creationPolicy: Owner
   data:
-    - secretKey: cloudflare-api-token
+    - secretKey: api-token
       remoteRef:
         key: cert-manager/cloudflare-api-token
         property: api-token
