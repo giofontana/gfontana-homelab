@@ -23,6 +23,12 @@ spec:
     - repoURL: https://github.com/giofontana/gfontana-homelab.git
       targetRevision: main
       ref: values
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: hashicorp-vault-agent-injector-cfg
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
   syncPolicy:
     automated:
       prune: false
