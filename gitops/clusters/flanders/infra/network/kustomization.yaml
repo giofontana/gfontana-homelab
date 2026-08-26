@@ -3,5 +3,4 @@ kind: Kustomization
 
 resources:
   - ./nmstate/aggregate
-  - ./metallb/aggregate
   - ./configuration  
