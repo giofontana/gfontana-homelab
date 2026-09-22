@@ -7,7 +7,7 @@ GitOps repository for managing two bare-metal Red Hat OpenShift clusters using A
 | Cluster | Role | Description |
 |---------|------|-------------|
 | **simpsons** | Hub | Primary cluster running ACM, ArgoCD, NVIDIA GPU, ODF storage, full observability stack |
-| **flanders** | Spoke | Managed cluster with LVMS storage, virtualization, and networking |
+| **flanders** | Spoke | Managed cluster with LVMS and TrueNAS CSI storage, virtualization, and networking |
 
 Both clusters run on Dell bare-metal servers with iDRAC out-of-band management.
 
@@ -42,7 +42,7 @@ gfontana-homelab/
 │   │           ├── compute/        # Virtualization
 │   │           ├── network/        # NMState, OVN config
 │   │           ├── security/       # cert-manager, OAuth
-│   │           └── storage/        # LVMS
+│   │           └── storage/        # LVMS, TrueNAS CSI
 │   └── components/                  # Reusable bases
 │       ├── apps/                    # Application manifests (Frigate, vm-sample-acm)
 │       └── infra/                   # Operator subscription bases (16 operators)
@@ -86,6 +86,7 @@ Each operator follows a consistent three-layer pattern:
 | OpenShift Pipelines | latest | x | |
 | OpenShift Virtualization | stable | x | x |
 | Sealed Secrets | — | x | |
+| TrueNAS CSI | stable | | x |
 
 ## Workloads
 

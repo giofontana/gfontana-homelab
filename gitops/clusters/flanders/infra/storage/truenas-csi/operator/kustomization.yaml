@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../../../../components/infra/truenas-csi
+
+patches:
+  - target:
+      kind: Subscription
+      name: truenas-csi
+    path: patch-version.yaml

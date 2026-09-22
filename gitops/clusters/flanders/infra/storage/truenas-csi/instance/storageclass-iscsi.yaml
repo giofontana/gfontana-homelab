@@ -1,0 +1,18 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: truenas-iscsi
+  annotations:
+    description: Provides RWO Filesystem & Block volumes backed by TrueNAS iSCSI zvols
+provisioner: csi.truenas.io
+parameters:
+  protocol: iscsi
+  pool: pool1
+  datasetPath: k8s/flanders/iscsi
+  compression: LZ4
+  volblocksize: 16K
+  sparse: "true"
+  csi.storage.k8s.io/fstype: xfs
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate

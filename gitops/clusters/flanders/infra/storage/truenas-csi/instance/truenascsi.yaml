@@ -1,0 +1,13 @@
+apiVersion: csi.truenas.io/v1alpha1
+kind: TrueNASCSI
+metadata:
+  name: truenas
+spec:
+  namespace: truenas-csi
+  truenasURL: "wss://192.168.1.3/api/current"
+  credentialsSecret: truenas-api-credentials
+  defaultPool: pool1
+  nfsServer: "192.168.1.3"
+  iscsiPortal: "192.168.1.3:3260"
+  # TrueNAS serves a self-signed certificate by default
+  insecureSkipTLS: true
