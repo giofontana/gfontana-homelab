@@ -43,7 +43,7 @@ spec:
           mountPath: /dev/shm
         - name: media-volume
           mountPath: /media
-        - name: config-volume
+        - name: db-volume
           mountPath: /config
           subPath: config
         - name: ssl-certs
@@ -65,9 +65,9 @@ spec:
       - name: media-volume
         persistentVolumeClaim:
           claimName: media-pvc
-      - name: config-volume
+      - name: db-volume
         persistentVolumeClaim:
-          claimName: db-pvc
+          claimName: frigate-db-pvc
       - name: ssl-certs
         secret:
           secretName: frigate-certs

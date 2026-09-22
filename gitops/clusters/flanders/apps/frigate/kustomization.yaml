@@ -14,3 +14,4 @@ resources:
 patchesStrategicMerge:
   - patch-cert-keys.yaml
   - patch-route-host.yaml
+  - patch-db-pvc-storageclass.yaml
