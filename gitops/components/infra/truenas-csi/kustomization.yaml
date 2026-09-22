@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonAnnotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+
+# Not available in gitops-catalog yet, so the Subscription is defined locally.
+# The operator only supports AllNamespaces mode, so it installs into
+# openshift-operators and reuses the existing global-operators OperatorGroup.
+resources:
+  - subscription.yaml
