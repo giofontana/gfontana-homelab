@@ -34,18 +34,18 @@ gfontana-homelab/
 │   │   │       ├── network/        # MetalLB, NMState, OVN config
 │   │   │       ├── observability/  # COO, Loki logging, monitoring, ACM observability
 │   │   │       ├── platform/       # ACM, ArgoCD, MTV, OpenShift AI, pipelines
-│   │   │       ├── security/       # cert-manager, sealed-secrets, OAuth
+│   │   │       ├── security/       # cert-manager, Vault, External Secrets, sealed-secrets, OAuth
 │   │   │       └── storage/        # Local storage, ODF (Ceph)
 │   │   └── flanders/               # Spoke cluster
 │   │       ├── apps/               # Workloads (Frigate)
 │   │       └── infra/              # Infrastructure by domain
 │   │           ├── compute/        # Virtualization
 │   │           ├── network/        # NMState, OVN config
-│   │           ├── security/       # cert-manager, OAuth
+│   │           ├── security/       # cert-manager, Vault, External Secrets, OAuth
 │   │           └── storage/        # LVMS, TrueNAS CSI
 │   └── components/                  # Reusable bases
 │       ├── apps/                    # Application manifests (Frigate, vm-sample-acm)
-│       └── infra/                   # Operator subscription bases (16 operators)
+│       └── infra/                   # Operator subscription bases, Vault Helm values and docs
 ├── governance/
 │   └── policies/                    # ACM governance policies
 └── scripts/
@@ -71,6 +71,8 @@ Each operator follows a consistent three-layer pattern:
 | Advanced Cluster Management | release-2.17 | x | |
 | cert-manager | stable-v1 | x | x |
 | Cluster Observability Operator | stable | x | |
+| External Secrets Operator | stable-v1 | x | x |
+| HashiCorp Vault (Helm chart) | 0.34.0 | x | x |
 | Local Storage | stable | x | |
 | LVMS Operator | — | | x |
 | MetalLB | stable | x | |
@@ -85,7 +87,7 @@ Each operator follows a consistent three-layer pattern:
 | OpenShift Logging/Loki | stable-6.6 | x | |
 | OpenShift Pipelines | latest | x | |
 | OpenShift Virtualization | stable | x | x |
-| Sealed Secrets | — | x | |
+| Sealed Secrets (legacy) | — | x | |
 | TrueNAS CSI | stable | | x |
 
 ## Workloads
@@ -97,7 +99,7 @@ Each operator follows a consistent three-layer pattern:
 ## Security
 
 - **TLS**: cert-manager with Let's Encrypt production (Cloudflare DNS-01 challenge) for wildcard certificates
-- **Secrets**: Bitnami Sealed Secrets for encrypting secrets in Git
+- **Secrets**: HashiCorp Vault (one per cluster) as the source of truth, synced into Kubernetes Secrets by the External Secrets Operator. Bitnami Sealed Secrets remains only for a few legacy secrets
 - **OAuth**: GitHub and htpasswd identity providers, kubeadmin removal
 - **RBAC**: Cluster-admin bindings managed via ACM governance policy
 
@@ -144,8 +146,68 @@ This updates all `patch-version.yaml` files across the tree.
 
 ### Managing Secrets
 
+Secrets are stored in HashiCorp Vault and pulled into the cluster by the External Secrets Operator (ESO). Git only contains `ExternalSecret` manifests, never secret values.
+
+```
+Vault (secret/ KV v2, per cluster)
+  └─> ClusterSecretStore "vault-backend" (Kubernetes auth, role external-secrets)
+        └─> ExternalSecret (*-vault.yaml, in the app namespace)
+              └─> Kubernetes Secret (created and refreshed by ESO)
+```
+
+| Cluster | Vault UI |
+|---------|----------|
+| simpsons | https://vault-ui-vault.apps.simpsons.lab.gfontana.me |
+| flanders | https://vault-ui-vault.apps.flanders.lab.gfontana.me |
+
+Vault runs in standalone mode with file storage and is **not auto-unsealed** — unseal it after every Vault pod restart.
+
+**1. Store the secret in Vault** (UI, or CLI from the Vault pod):
+
 ```bash
-# Create a new sealed secret
+oc exec -n vault hashicorp-vault-0 -- env VAULT_TOKEN=<token> \
+  vault kv put secret/myapp/config api-key=<value>
+```
+
+**2. Add an `ExternalSecret`** as `<name>-vault.yaml` next to the consuming manifests and list it in `kustomization.yaml`:
+
+```yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: myapp-config
+  namespace: myapp
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: myapp-config
+    creationPolicy: Owner
+  data:
+    - secretKey: api-key          # key in the Kubernetes Secret
+      remoteRef:
+        key: myapp/config         # path under secret/
+        property: api-key         # key inside the Vault entry
+```
+
+**3. Verify** after ArgoCD syncs:
+
+```bash
+oc get externalsecret myapp-config -n myapp   # STATUS=SecretSynced, READY=True
+```
+
+Further docs:
+- [Vault & ESO installation](gitops/components/infra/vault/01-vault-and-eso-installation.md)
+- [Using Vault with ESO](gitops/components/infra/vault/02-using-vault-with-eso.md)
+- [One-time Vault Kubernetes auth setup per cluster](gitops/clusters/simpsons/infra/security/external-secrets-operator/README.md)
+
+#### Legacy: Sealed Secrets
+
+A few older secrets (OAuth, the `argocd-flanders` cluster secret, the flanders Frigate config) are still Bitnami sealed secrets. New secrets should use Vault; migrate these when you touch them.
+
+```bash
 kubectl create secret generic my-secret \
   --from-literal=key=value \
   --dry-run=client -o yaml | kubeseal --format=yaml > my-secret-sealed.yaml

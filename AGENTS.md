@@ -11,7 +11,8 @@ This is a Kustomize-based GitOps repository managing two bare-metal Red Hat Open
 - **simpsons** is the hub cluster (runs ACM, ArgoCD, manages flanders)
 - **flanders** is the spoke cluster (managed remotely by an ArgoCD instance on simpsons)
 - Operator subscriptions are sourced from an external [gitops-catalog](https://github.com/giofontana/gitops-catalog) and overlaid with cluster-specific patches
-- Secrets are encrypted with Bitnami Sealed Secrets — never commit plaintext secrets
+- Secrets live in a per-cluster **HashiCorp Vault** and are synced into Kubernetes by the **External Secrets Operator (ESO)**. Git only holds `ExternalSecret` manifests — never commit plaintext secrets
+- Bitnami Sealed Secrets is legacy: a few older secrets still use it, but new secrets must go through Vault
 
 ## Directory Conventions
 
@@ -66,9 +67,57 @@ Each infrastructure domain has an `argocd-apps/` directory containing individual
 
 ### Secrets
 
-- Never commit plaintext `*-secret.yaml` files (they are gitignored)
-- Only `*-sealed.yaml` and `*-sealed-secret.yaml` are tracked
-- Use `kubeseal` to encrypt secrets before committing
+Vault + ESO is the standard way to handle secrets. Each cluster runs its own Vault; there is no shared Vault between simpsons and flanders.
+
+**How it is wired (per cluster):**
+
+- Vault is deployed from the HashiCorp Helm chart by the `hashicorp-vault` ArgoCD Application (multi-source: chart + values from this repo)
+  - Shared values: `gitops/components/infra/hashicorp-vault/values.yaml` (standalone mode, file storage on a 10Gi PVC, TLS disabled on the listener)
+  - Cluster overrides: `gitops/clusters/<cluster>/infra/security/hashicorp-vault/helm/values.yaml`
+  - `hashicorp-vault-config` Application deploys the `vault` namespace and the `vault-ui` Route (`hashicorp-vault/instance/`)
+- ESO (Red Hat operator) lives under `gitops/clusters/<cluster>/infra/security/external-secrets-operator/`; its `instance/` holds:
+  - `ClusterSecretStore` `vault-backend` → `http://hashicorp-vault.vault.svc:8200`, KV v2 engine mounted at `secret/`
+  - Kubernetes auth with role `external-secrets`, using the `vault-auth` ServiceAccount in the `external-secrets` namespace
+  - NetworkPolicy `allow-eso-to-vault` (the operator creates a deny-all policy, so egress to Vault on 8200 must be allowed explicitly)
+- The Vault Kubernetes auth method, `external-secrets` policy and role are configured **manually** once per cluster — see `gitops/clusters/simpsons/infra/security/external-secrets-operator/README.md`
+- Vault is not auto-unsealed: after a Vault pod restart it must be unsealed manually before ESO can sync again
+
+**Adding a secret:**
+
+1. Store the value in the target cluster's Vault under the KV v2 `secret/` mount, using `<namespace-or-app>/<secret-name>` as the path (e.g. `secret/cert-manager/cloudflare-api-token`). The user does this — agents must never write secret values into the repo
+2. Add an `ExternalSecret` next to the consuming manifests, named `<secret-name>-vault.yaml`, and add it to the local `kustomization.yaml`:
+
+```yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: truenas-api-credentials
+  namespace: truenas-csi
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: truenas-api-credentials   # Kubernetes Secret ESO creates
+    creationPolicy: Owner
+  data:
+    - secretKey: api-key             # key in the Kubernetes Secret
+      remoteRef:
+        key: truenas-csi/api-credentials   # path under secret/ (no "secret/" or "data/" prefix)
+        property: api-key                  # key inside the Vault entry
+```
+
+- `secretKey` must match the key the consumer reads (e.g. the cert-manager ClusterIssuer reads `api-token`) — a mismatch fails silently at the consumer, not in ESO
+- Use `refreshInterval: 1h` to match existing ExternalSecrets
+- Existing examples: `cert-manager-operator/instance/cloudflare-api-token-vault.yaml` (both clusters), `flanders/infra/storage/truenas-csi/instance/truenas-api-credentials-vault.yaml`, `simpsons/apps/smart-travel-buddy/base/external-secret-api-keys.yaml`
+- Usage guides: `gitops/components/infra/vault/02-using-vault-with-eso.md`
+
+**Legacy Sealed Secrets:**
+
+- Still used by: OAuth secrets (`infra/security/auth/*-sealed.yaml`), the `argocd-flanders` cluster secret, and the flanders Frigate config
+- When touching one of these, prefer migrating it to Vault + ESO rather than re-sealing
+- Never commit plaintext `*-secret.yaml` files (they are gitignored); only `*-sealed.yaml` and `*-sealed-secret.yaml` are tracked
 
 ## ArgoCD Configuration
 
@@ -80,7 +129,7 @@ Each infrastructure domain has an `argocd-apps/` directory containing individual
 
 ## Kustomize Conventions
 
-- All manifests use Kustomize (no Helm charts)
+- All manifests use Kustomize. The one exception is HashiCorp Vault, installed from its Helm chart via a multi-source ArgoCD Application
 - Component bases reference the external gitops-catalog via remote URLs
 - Cluster-specific patches are applied through overlays
 - Sync waves are used to order resource creation (e.g., certificates before deployments)
@@ -89,7 +138,8 @@ Each infrastructure domain has an `argocd-apps/` directory containing individual
 
 - `kustomization.yaml` — Kustomize entry point
 - `patch-version.yaml` — Operator subscription channel patch
-- `*-sealed.yaml` — Sealed (encrypted) secrets safe for Git
+- `*-vault.yaml` — `ExternalSecret` pulling a secret from Vault
+- `*-sealed.yaml` — Legacy sealed (encrypted) secrets safe for Git
 - `*-secret.yaml` — Plaintext secrets (gitignored, never commit)
 
 ## Testing Changes
