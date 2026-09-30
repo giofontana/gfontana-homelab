@@ -14,7 +14,6 @@ data:
         "mode": "local",
         "bind": "lan",
         "port": 18789,
-        "publicOrigin": "https://openclaw.apps.simpsons.lab.gfontana.me",
         "auth": {
           "mode": "token"
         },
