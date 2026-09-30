@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openclaw
+  namespace: openshift-gitops
+spec:
+  project: workloads
+  source:
+    path: gitops/clusters/simpsons/apps/openclaw
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openclaw
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
