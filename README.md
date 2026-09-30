@@ -28,7 +28,7 @@ gfontana-homelab/
 ├── gitops/
 │   ├── clusters/                    # Cluster-specific configuration
 │   │   ├── simpsons/                # Hub cluster
-│   │   │   ├── apps/               # Workloads (Frigate, VMs, VMware migration)
+│   │   │   ├── apps/               # Workloads (Frigate, OpenClaw, VMs, VMware migration)
 │   │   │   └── infra/              # Infrastructure by domain
 │   │   │       ├── compute/        # Virtualization, GPU, NFD, node maintenance
 │   │   │       ├── network/        # MetalLB, NMState, OVN config
@@ -44,7 +44,7 @@ gfontana-homelab/
 │   │           ├── security/       # cert-manager, Vault, External Secrets, OAuth
 │   │           └── storage/        # LVMS, TrueNAS CSI
 │   └── components/                  # Reusable bases
-│       ├── apps/                    # Application manifests (Frigate, vm-sample-acm)
+│       ├── apps/                    # Application manifests (Frigate, OpenClaw, vm-sample-acm)
 │       └── infra/                   # Operator subscription bases, Vault Helm values and docs
 ├── governance/
 │   └── policies/                    # ACM governance policies
@@ -93,6 +93,7 @@ Each operator follows a consistent three-layer pattern:
 ## Workloads
 
 - **Frigate** — NVR with AI object detection, deployed with CPU or NVIDIA GPU overlay. NFS media storage, TLS via cert-manager/Let's Encrypt. See [Frigate README](gitops/components/apps/frigate/README.md).
+- **OpenClaw** — AI assistant gateway on simpsons, exposed through an edge Route with secrets from Vault. See [OpenClaw README](gitops/components/apps/openclaw/README.md).
 - **vm-sample-acm** — Sample VM deployed via ACM ApplicationSet with Placement-based scheduling
 - **VMware resources** — ESXi VM definitions for MTV migration
 
