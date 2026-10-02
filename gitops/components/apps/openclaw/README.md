@@ -111,6 +111,24 @@ Check the connection and the tools it provides:
 oc exec -n openclaw deploy/openclaw -- openclaw mcp probe homeassistant
 ```
 
+## Telegram (flanders only)
+
+flanders runs a Telegram bot that talks to the `home-assistant` agent (Jarvis). Telegram allows only one poller
+per bot token, so it must not be enabled on simpsons too. The config lives in the flanders overlay:
+
+- `patch-telegram-config.yaml`: `channels.json5` (DMs only from the owner's numeric Telegram user ID, groups
+  disabled) and `bindings.json5` (route Telegram to `home-assistant`), pulled in with `$include`
+- `patch-telegram-env.yaml`: required `TELEGRAM_BOT_TOKEN` and `TELEGRAM_OWNER_ID` from Vault
+
+Create the bot with @BotFather (`/newbot`), then store both values in flanders' Vault:
+
+```bash
+vault kv patch secret/openclaw/secrets TELEGRAM_BOT_TOKEN="123:abc" TELEGRAM_OWNER_ID="<your numeric user id>"
+```
+
+To find your user ID without a third-party bot, send the bot a message and read `message.from.id` from
+`https://api.telegram.org/bot<token>/getUpdates` (before the gateway starts polling).
+
 ## Upgrading
 
 Bump the pinned image tag in `base/deployment.yaml`.

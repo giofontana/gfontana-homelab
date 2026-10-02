@@ -1,0 +1,23 @@
+# Telegram channel, flanders only: Telegram allows one poller per bot token, so the bot
+# must not also run on simpsons. Git-owned via $include in openclaw.json.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-config
+data:
+  # Bot token comes from TELEGRAM_BOT_TOKEN (env fallback for the default account).
+  # Only the owner's numeric Telegram user ID may DM the bot; groups are off.
+  channels.json5: |
+    {
+      telegram: {
+        enabled: true,
+        dmPolicy: "allowlist",
+        allowFrom: ["${TELEGRAM_OWNER_ID}"],
+        groupPolicy: "disabled",
+      },
+    }
+  # Telegram messages go to Jarvis (the home-assistant agent).
+  bindings.json5: |
+    [
+      { match: { channel: "telegram" }, agentId: "home-assistant" },
+    ]

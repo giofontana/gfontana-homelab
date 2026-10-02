@@ -1,0 +1,22 @@
+# Telegram bot token and owner ID from Vault (secret/openclaw/secrets). Required, so a
+# missing key stops the container instead of starting a bot nobody can talk to.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openclaw
+spec:
+  template:
+    spec:
+      containers:
+        - name: gateway
+          env:
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: TELEGRAM_BOT_TOKEN
+            - name: TELEGRAM_OWNER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: TELEGRAM_OWNER_ID
