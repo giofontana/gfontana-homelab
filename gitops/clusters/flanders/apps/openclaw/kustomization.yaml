@@ -13,3 +13,4 @@ components:
 patches:
   - path: patch-route-host.yaml
   - path: patch-openclaw-json.yaml
+  - path: patch-pvc-storageclass.yaml

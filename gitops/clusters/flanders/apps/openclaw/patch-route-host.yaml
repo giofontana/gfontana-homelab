@@ -1,0 +1,7 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: openclaw
+  namespace: openclaw
+spec:
+  host: openclaw.apps.flanders.lab.gfontana.me

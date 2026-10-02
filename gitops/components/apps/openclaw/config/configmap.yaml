@@ -1,7 +1,8 @@
-# openclaw.json and the *.md files are seed-only: the init container copies them to the
-# PVC when they are missing, and after first boot the PVC copy is the source of truth.
+# Config shared by every cluster that runs OpenClaw. Each cluster overlay adds the
+# openclaw.json key (it carries the cluster's Control UI origin).
 # agents.json5 and mcp.json5 are git-owned: the gateway mounts them at /config-git and
 # openclaw.json pulls them in with $include, so changes apply on restart without a reseed.
+# The *.md files are seed-only: the init container copies them to the PVC when missing.
 # See gitops/components/apps/openclaw/README.md.
 apiVersion: v1
 kind: ConfigMap
@@ -10,24 +11,6 @@ metadata:
   labels:
     app: openclaw
 data:
-  openclaw.json: |
-    {
-      "gateway": {
-        "mode": "local",
-        "bind": "lan",
-        "port": 18789,
-        "auth": {
-          "mode": "token"
-        },
-        "controlUi": {
-          "enabled": true,
-          "allowedOrigins": ["https://openclaw.apps.simpsons.lab.gfontana.me"]
-        }
-      },
-      "agents": { "$include": "/config-git/agents.json5" },
-      "mcp": { "$include": "/config-git/mcp.json5" },
-      "cron": { "enabled": false }
-    }
   agents.json5: |
     {
       defaults: {
