@@ -39,6 +39,13 @@ spec:
               [ -f /home/node/.openclaw/openclaw.json ] || cp /config/openclaw.json /home/node/.openclaw/openclaw.json
               mkdir -p /home/node/.openclaw/workspace
               [ -f /home/node/.openclaw/workspace/AGENTS.md ] || cp /config/AGENTS.md /home/node/.openclaw/workspace/AGENTS.md
+              # Extra agents: ConfigMap keys named <agent-id>__<FILE> seed ~/.openclaw/workspace-<agent-id>/<FILE>.
+              for f in /config/*__*; do
+                [ -e "$f" ] || continue
+                name=${f##*/}; agent=${name%%__*}; file=${name#*__}
+                mkdir -p "/home/node/.openclaw/workspace-$agent"
+                [ -f "/home/node/.openclaw/workspace-$agent/$file" ] || cp "$f" "/home/node/.openclaw/workspace-$agent/$file"
+              done
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -77,6 +84,9 @@ spec:
               value: /home/node/.openclaw
             - name: NODE_ENV
               value: production
+            # Lets openclaw.json $include the git-managed files mounted from the ConfigMap.
+            - name: OPENCLAW_INCLUDE_ROOTS
+              value: /config-git
             - name: OPENCLAW_GATEWAY_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -147,6 +157,10 @@ spec:
               mountPath: /home/node/.openclaw
             - name: tmp-volume
               mountPath: /tmp
+            # Git-owned config sections (agents.json5, mcp.json5) pulled in via $include.
+            - name: config
+              mountPath: /config-git
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
