@@ -1,0 +1,21 @@
+# Second Route on a custom domain, served by the default ingress certificate (it also
+# covers *.gfontana.me).
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: openclaw-ai
+  namespace: openclaw
+  labels:
+    app: openclaw
+spec:
+  host: ai.gfontana.me
+  to:
+    kind: Service
+    name: openclaw
+    weight: 100
+  port:
+    targetPort: gateway
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
