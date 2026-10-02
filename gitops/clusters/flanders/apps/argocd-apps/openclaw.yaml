@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: openclaw
-  namespace: argocd-flanders
+  namespace: openshift-gitops
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous
   labels:
@@ -10,7 +10,7 @@ metadata:
 spec:
   destination:
     namespace: openclaw
-    server: https://api.flanders.lab.gfontana.me:6443
+    server: https://kubernetes.default.svc
   project: default
   source:
     path: gitops/clusters/flanders/apps/openclaw/
