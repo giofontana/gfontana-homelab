@@ -15,9 +15,9 @@ Both clusters run on Dell bare-metal servers with iDRAC out-of-band management.
 
 The repository follows the **app-of-apps pattern** with ArgoCD. Infrastructure is organized by domain, and operator subscriptions are sourced from an external [gitops-catalog](https://github.com/giofontana/gitops-catalog) with cluster-specific overlays applied on top.
 
-Two ArgoCD instances run on the simpsons cluster:
-- `openshift-gitops` manages the simpsons cluster directly
-- `argocd-flanders` manages the flanders cluster remotely
+Each cluster runs its own ArgoCD instance (`openshift-gitops`) and manages only itself:
+- simpsons: `gitops/clusters/simpsons/`
+- flanders: `gitops/clusters/flanders/`
 
 All ArgoCD Applications use `selfHeal: true` and sync from the `main` branch.
 
@@ -40,6 +40,7 @@ gfontana-homelab/
 │   │       ├── apps/               # Workloads (Frigate)
 │   │       └── infra/              # Infrastructure by domain
 │   │           ├── compute/        # Virtualization
+│   │           ├── platform/       # ArgoCD
 │   │           ├── network/        # NMState, OVN config
 │   │           ├── security/       # cert-manager, Vault, External Secrets, OAuth
 │   │           └── storage/        # LVMS, TrueNAS CSI
@@ -206,7 +207,7 @@ Further docs:
 
 #### Legacy: Sealed Secrets
 
-A few older secrets (OAuth, the `argocd-flanders` cluster secret, the flanders Frigate config) are still Bitnami sealed secrets. New secrets should use Vault; migrate these when you touch them.
+A few older secrets (OAuth, the flanders Frigate config) are still Bitnami sealed secrets. New secrets should use Vault; migrate these when you touch them.
 
 ```bash
 kubectl create secret generic my-secret \

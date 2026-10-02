@@ -8,8 +8,9 @@ This is a Kustomize-based GitOps repository managing two bare-metal Red Hat Open
 
 ## Key Concepts
 
-- **simpsons** is the hub cluster (runs ACM, ArgoCD, manages flanders)
-- **flanders** is the spoke cluster (managed remotely by an ArgoCD instance on simpsons)
+- **simpsons** is the hub cluster (runs ACM)
+- **flanders** is the spoke cluster
+- Each cluster runs its own ArgoCD (`openshift-gitops`) that manages only that cluster
 - Operator subscriptions are sourced from an external [gitops-catalog](https://github.com/giofontana/gitops-catalog) and overlaid with cluster-specific patches
 - Secrets live in a per-cluster **HashiCorp Vault** and are synced into Kubernetes by the **External Secrets Operator (ESO)**. Git only holds `ExternalSecret` manifests — never commit plaintext secrets
 - Bitnami Sealed Secrets is legacy: a few older secrets still use it, but new secrets must go through Vault
@@ -115,7 +116,7 @@ spec:
 
 **Legacy Sealed Secrets:**
 
-- Still used by: OAuth secrets (`infra/security/auth/*-sealed.yaml`), the `argocd-flanders` cluster secret, and the flanders Frigate config
+- Still used by: OAuth secrets (`infra/security/auth/*-sealed.yaml`) and the flanders Frigate config
 - When touching one of these, prefer migrating it to Vault + ESO rather than re-sealing
 - Never commit plaintext `*-secret.yaml` files (they are gitignored); only `*-sealed.yaml` and `*-sealed-secret.yaml` are tracked
 
@@ -124,8 +125,8 @@ spec:
 - All Applications use `selfHeal: true` and `prune: false`
 - Source repository: `https://github.com/giofontana/gfontana-homelab.git`
 - Target branch: `main`
-- Simpsons apps deploy to `openshift-gitops` namespace
-- Flanders apps deploy to `argocd-flanders` namespace with a cluster secret
+- Applications live in the `openshift-gitops` namespace of the cluster they manage and target `https://kubernetes.default.svc`
+- Bootstrap (once per cluster): install the OpenShift GitOps operator and `oc apply` each domain's `app-of-apps.yaml`
 
 ## Kustomize Conventions
 
