@@ -10,3 +10,4 @@ resources:
 
 patches:
   - path: patch-route-host.yaml
+  - path: patch-ha-env.yaml

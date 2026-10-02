@@ -1,6 +1,8 @@
-# Seed config only: the init container copies these files to the PVC when they
-# are missing. After first boot the PVC copy is the source of truth, so changes
-# here need a reseed (see gitops/components/apps/openclaw/README.md).
+# openclaw.json and the *.md files are seed-only: the init container copies them to the
+# PVC when they are missing, and after first boot the PVC copy is the source of truth.
+# agents.json5 and mcp.json5 are git-owned: the gateway mounts them at /config-git and
+# openclaw.json pulls them in with $include, so changes apply on restart without a reseed.
+# See gitops/components/apps/openclaw/README.md.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -22,21 +24,54 @@ data:
           "allowedOrigins": ["https://openclaw.apps.simpsons.lab.gfontana.me"]
         }
       },
-      "agents": {
-        "defaults": {
-          "workspace": "~/.openclaw/workspace"
-        },
-        "list": [
-          {
-            "id": "default",
-            "name": "OpenClaw Assistant",
-            "workspace": "~/.openclaw/workspace"
-          }
-        ]
-      },
+      "agents": { "$include": "/config-git/agents.json5" },
+      "mcp": { "$include": "/config-git/mcp.json5" },
       "cron": { "enabled": false }
+    }
+  agents.json5: |
+    {
+      defaults: {
+        workspace: "~/.openclaw/workspace",
+      },
+      list: [
+        {
+          id: "default",
+          name: "OpenClaw Assistant",
+          workspace: "~/.openclaw/workspace",
+          // Home Assistant tools belong to the home-assistant agent only.
+          tools: { deny: ["homeassistant__*"] },
+        },
+        {
+          id: "home-assistant",
+          name: "Home Assistant",
+          workspace: "~/.openclaw/workspace-home-assistant",
+          // No shell: it could read HA_TOKEN from the environment.
+          tools: { deny: ["group:runtime"] },
+        },
+      ],
+    }
+  mcp.json5: |
+    {
+      servers: {
+        homeassistant: {
+          // URL and token come from Vault (secret/openclaw/secrets) via env vars.
+          url: "${HA_MCP_URL}",
+          transport: "streamable-http",
+          headers: {
+            Authorization: "Bearer ${HA_TOKEN}",
+          },
+        },
+      },
     }
   AGENTS.md: |
     # OpenClaw Assistant
 
     You are a helpful AI assistant running in Kubernetes.
+  home-assistant__AGENTS.md: |
+    # Home Assistant
+
+    You help manage the home through Home Assistant, using the homeassistant MCP tools.
+
+    - Never change the state of a device (lights, switches, climate, covers, media, scenes,
+      scripts or anything else) without asking first and getting an explicit yes.
+    - Reading state is always fine.

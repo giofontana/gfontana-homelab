@@ -1,0 +1,23 @@
+# Home Assistant MCP endpoint and token for the homeassistant server in mcp.json5.
+# Required: an unset HA_MCP_URL makes openclaw.json invalid and the gateway fails to start,
+# so a missing Vault key should stop the container (CreateContainerConfigError) instead.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openclaw
+spec:
+  template:
+    spec:
+      containers:
+        - name: gateway
+          env:
+            - name: HA_MCP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: HA_MCP_URL
+            - name: HA_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: HA_TOKEN

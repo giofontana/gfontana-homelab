@@ -23,14 +23,56 @@ vault kv put secret/openclaw/secrets \
 `OPENCLAW_GATEWAY_TOKEN` is required. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` and
 `OPENROUTER_API_KEY` are optional; add whichever providers you use.
 
+`HA_MCP_URL` (the Home Assistant MCP endpoint, `https://<ha-host>/api/mcp`) and `HA_TOKEN` (a Home Assistant
+long-lived access token) configure the `homeassistant` MCP server in the simpsons `mcp.json5`. Both live in
+Vault so the endpoint stays out of git. The simpsons overlay (`patch-ha-env.yaml`) makes them required: an unset
+`HA_MCP_URL` would make `openclaw.json` invalid, so the container refuses to start until both keys exist:
+
+```bash
+vault kv patch secret/openclaw/secrets HA_MCP_URL="https://<ha-host>/api/mcp" HA_TOKEN="..."
+```
+
 ## Changing the config
 
-The init container copies `openclaw.json` and `AGENTS.md` to the PVC only if they are missing, so edits made
-through OpenClaw survive restarts. To apply a ConfigMap change, delete the persisted copy and restart:
+The config is split between the PVC and git:
+
+| What | Owner | How changes apply |
+| --- | --- | --- |
+| `agents.json5` (agents, per-agent tools) and `mcp.json5` (MCP servers) | Git | Mounted read-only at `/config-git` and pulled into `openclaw.json` with `$include`. Edit the ConfigMap, then `oc rollout restart -n openclaw deploy/openclaw` |
+| Everything else in `openclaw.json` (gateway, channels, ...) | PVC | Seeded once; change it through OpenClaw (CLI, Control UI) |
+| Agent workspace files (`AGENTS.md`, `<agent-id>__<FILE>` keys) | PVC | Seeded once into `workspace/` or `workspace-<agent-id>/` |
+
+Because the git-owned sections are read-only, OpenClaw refuses to write to them (`openclaw mcp add`,
+`agents add`, the Control UI MCP editor) and leaves `openclaw.json` untouched. Change agents and MCP servers
+through a PR instead.
+
+To reapply a seed-only file, delete the persisted copy and restart:
 
 ```bash
 oc exec -n openclaw deploy/openclaw -- rm /home/node/.openclaw/openclaw.json
 oc rollout restart -n openclaw deploy/openclaw
+```
+
+## Agents
+
+- `default`: general assistant; Home Assistant tools are denied
+- `home-assistant`: talks to Home Assistant through the `homeassistant` MCP server; shell tools are denied so it
+  cannot read `HA_TOKEN` from its environment
+
+To add an agent, add it to `agents.json5` and seed its workspace with `<agent-id>__AGENTS.md` keys in the
+ConfigMap.
+
+## Home Assistant MCP
+
+The `homeassistant` MCP server connects to Home Assistant's MCP Server integration at `HA_MCP_URL`
+(Streamable HTTP, bearer token from `HA_TOKEN`). In Home Assistant, add the
+**Model Context Protocol Server** integration and expose only the entities the agent should see
+(Settings → Voice assistants → Expose).
+
+Check the connection and the tools it provides:
+
+```bash
+oc exec -n openclaw deploy/openclaw -- openclaw mcp probe homeassistant
 ```
 
 ## Upgrading
