@@ -1,10 +1,11 @@
-# Shared OpenClaw config: agents, MCP servers, workspace seeds and the Home Assistant env vars.
+# Shared OpenClaw config: agents, MCP servers, workspace seeds (git and Vault) and the Home Assistant env vars.
 # Cluster overlays add their own openclaw.json (see patch-openclaw-json.yaml there).
 apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 
 resources:
   - configmap.yaml
+  - openclaw-workspace-vault.yaml
 
 patches:
   - path: patch-ha-env.yaml

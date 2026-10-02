@@ -46,6 +46,14 @@ spec:
                 mkdir -p "/home/node/.openclaw/workspace-$agent"
                 [ -f "/home/node/.openclaw/workspace-$agent/$file" ] || cp "$f" "/home/node/.openclaw/workspace-$agent/$file"
               done
+              # Private workspace files from Vault (openclaw-workspace Secret, same <agent-id>__<FILE> naming).
+              # Vault is the source of truth, so these overwrite the workspace copy on every start.
+              for f in /config-secret/*__*; do
+                [ -e "$f" ] || continue
+                name=${f##*/}; agent=${name%%__*}; file=${name#*__}
+                mkdir -p "/home/node/.openclaw/workspace-$agent"
+                cp "$f" "/home/node/.openclaw/workspace-$agent/$file"
+              done
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -63,6 +71,9 @@ spec:
               mountPath: /home/node/.openclaw
             - name: config
               mountPath: /config
+            - name: workspace-secret
+              mountPath: /config-secret
+              readOnly: true
       containers:
         - name: gateway
           # Bump this immutable versioned tag when upgrading OpenClaw.
@@ -174,5 +185,10 @@ spec:
         - name: config
           configMap:
             name: openclaw-config
+        # Optional: without the Secret (no secret/openclaw/workspace in Vault) the pod still starts.
+        - name: workspace-secret
+          secret:
+            secretName: openclaw-workspace
+            optional: true
         - name: tmp-volume
           emptyDir: {}

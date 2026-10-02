@@ -80,6 +80,24 @@ oc exec -n openclaw deploy/openclaw -- rm /home/node/.openclaw/workspace-<agent-
 oc rollout restart -n openclaw deploy/openclaw
 ```
 
+## Private workspace files (Vault)
+
+Workspace files that must not be public, such as a `TOOLS.md` with device names, live in Vault instead of git.
+Each property of `secret/openclaw/workspace` is one file, named `<agent-id>__<FILE>`. The
+`openclaw-workspace` ExternalSecret (`config/openclaw-workspace-vault.yaml`) syncs them into a Secret, and the
+init container copies them into `~/.openclaw/workspace-<agent-id>/` on **every start**, overwriting the
+workspace copy. Vault is the source of truth, so edits made in the workspace are lost on restart.
+
+```bash
+vault kv patch secret/openclaw/workspace home-assistant__TOOLS.md=@TOOLS.md
+oc rollout restart -n openclaw deploy/openclaw
+```
+
+In the Vault UI, use the key/value view (not JSON mode) and paste the file as the value; newlines are kept.
+Each cluster has its own Vault, so add it to every cluster that should have the file. Without the path, the pod
+still starts (the Secret volume is optional), but the ExternalSecret reports a sync error. ESO refreshes hourly;
+force a sync with `oc annotate externalsecrets.external-secrets.io -n openclaw openclaw-workspace force-sync=$(date +%s) --overwrite`.
+
 ## Home Assistant MCP
 
 The `homeassistant` MCP server connects to Home Assistant's MCP Server integration at `HA_MCP_URL`
