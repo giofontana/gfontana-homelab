@@ -59,8 +59,17 @@ oc rollout restart -n openclaw deploy/openclaw
 - `home-assistant`: talks to Home Assistant through the `homeassistant` MCP server; shell tools are denied so it
   cannot read `HA_TOKEN` from its environment
 
-To add an agent, add it to `agents.json5` and seed its workspace with `<agent-id>__AGENTS.md` keys in the
-ConfigMap.
+To add an agent, add it to `agents.json5` and seed its workspace with `<agent-id>__<FILE>` keys in the
+ConfigMap (`AGENTS.md`, `IDENTITY.md`, `SOUL.md`, ...). When a seeded `IDENTITY.md`, `SOUL.md` or `USER.md`
+differs from OpenClaw's template, OpenClaw treats setup as complete and skips the `BOOTSTRAP.md` first-run
+"who am I?" conversation.
+
+Seeds only fill in missing files. To apply a changed seed to an existing workspace, delete that file and restart:
+
+```bash
+oc exec -n openclaw deploy/openclaw -- rm /home/node/.openclaw/workspace-<agent-id>/SOUL.md
+oc rollout restart -n openclaw deploy/openclaw
+```
 
 ## Home Assistant MCP
 
