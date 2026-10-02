@@ -17,7 +17,10 @@ data:
         },
         "controlUi": {
           "enabled": true,
-          "allowedOrigins": ["https://openclaw.apps.flanders.lab.gfontana.me"]
+          "allowedOrigins": [
+            "https://openclaw.apps.flanders.lab.gfontana.me",
+            "https://ai.gfontana.me"
+          ]
         }
       },
       "agents": { "$include": "/config-git/agents.json5" },

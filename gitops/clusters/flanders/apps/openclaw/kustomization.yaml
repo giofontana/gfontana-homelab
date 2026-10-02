@@ -6,6 +6,7 @@ namespace: openclaw
 resources:
   - ../../../../components/apps/openclaw/base
   - openclaw-secrets-vault.yaml
+  - route-ai.yaml
 
 components:
   - ../../../../components/apps/openclaw/config
