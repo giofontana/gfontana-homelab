@@ -7,8 +7,17 @@
 - Edge-terminated Route in front of the gateway (port 18789), using the default wildcard ingress cert
 - Gateway bound to `lan` so the router can reach it; token auth stays enabled
 
-The `openclaw-config` ConfigMap and the `openclaw-secrets` ExternalSecret live in the cluster overlay
-(`gitops/clusters/<cluster>/apps/openclaw/`) because they carry the cluster's public origin and Vault path.
+Layout:
+
+- `base/`: Deployment, PVC, Service, Route, ServiceAccount
+- `config/`: Kustomize component with the config shared by every cluster: the `openclaw-config` ConfigMap
+  (`agents.json5`, `mcp.json5`, workspace seeds) and the required Home Assistant env vars
+- `gitops/clusters/<cluster>/apps/openclaw/`: the cluster overlay. It adds `openclaw.json` to the ConfigMap
+  (`patch-openclaw-json.yaml`, which carries the Control UI origin), the Route host, and the `openclaw-secrets`
+  ExternalSecret for that cluster's Vault
+
+OpenClaw runs on simpsons and flanders with the same agents and MCP servers. Each cluster has its own Vault, PVC
+and device pairings. flanders keeps its PVC on `truenas-iscsi` instead of the default LVMS class.
 
 ## Prerequisites
 
@@ -24,8 +33,8 @@ vault kv put secret/openclaw/secrets \
 `OPENROUTER_API_KEY` are optional; add whichever providers you use.
 
 `HA_MCP_URL` (the Home Assistant MCP endpoint, `https://<ha-host>/api/mcp`) and `HA_TOKEN` (a Home Assistant
-long-lived access token) configure the `homeassistant` MCP server in the simpsons `mcp.json5`. Both live in
-Vault so the endpoint stays out of git. The simpsons overlay (`patch-ha-env.yaml`) makes them required: an unset
+long-lived access token) configure the `homeassistant` MCP server in `config/configmap.yaml` (`mcp.json5`). Both live in
+Vault so the endpoint stays out of git. `config/patch-ha-env.yaml` makes them required: an unset
 `HA_MCP_URL` would make `openclaw.json` invalid, so the container refuses to start until both keys exist:
 
 ```bash

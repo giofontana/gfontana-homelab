@@ -1,0 +1,7 @@
+# Network block storage instead of the default LVMS class, so the pod isn't tied to one node's disk.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openclaw-home-pvc
+spec:
+  storageClassName: truenas-iscsi

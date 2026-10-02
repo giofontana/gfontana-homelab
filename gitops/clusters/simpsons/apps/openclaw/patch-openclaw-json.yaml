@@ -1,0 +1,26 @@
+# Seed-only openclaw.json for this cluster: the init container copies it to the PVC when
+# it is missing. It is added to the shared openclaw-config ConfigMap from
+# gitops/components/apps/openclaw/config.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-config
+data:
+  openclaw.json: |
+    {
+      "gateway": {
+        "mode": "local",
+        "bind": "lan",
+        "port": 18789,
+        "auth": {
+          "mode": "token"
+        },
+        "controlUi": {
+          "enabled": true,
+          "allowedOrigins": ["https://openclaw.apps.simpsons.lab.gfontana.me"]
+        }
+      },
+      "agents": { "$include": "/config-git/agents.json5" },
+      "mcp": { "$include": "/config-git/mcp.json5" },
+      "cron": { "enabled": false }
+    }
