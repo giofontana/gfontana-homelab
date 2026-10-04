@@ -28,7 +28,7 @@ Prometheus keeps 15 days on a 50Gi `truenas-iscsi` volume. Alertmanager is disab
 | Path (under `secret/`) | Properties |
 |---|---|
 | `homelab-monitoring/idrac` | `username`, `password`: read-only Redfish user, the same on every iDRAC |
-| `homelab-monitoring/unifi` | `url` (e.g. `https://192.168.1.1`), `username`, `password`: local read-only UniFi user |
+| `homelab-monitoring/unifi` | `url` (the UniFi console, e.g. `https://<unifi-console>`), `username`, `password`: local read-only UniFi user |
 | `homelab-monitoring/pihole` | `host` (IP or hostname), `password`: Pi-hole app password |
 | `homelab-monitoring/home-assistant` | `token`: long-lived access token |
 | `homelab-monitoring/grafana` | `session_secret`: e.g. `openssl rand -base64 32` |
@@ -57,7 +57,7 @@ Check from a pod (the idrac-exporter image is Alpine-based, so it has `nslookup`
       no log
     ```
   - Install `node_exporter` (`:9100`).
-  - Start cloudflared with `--metrics 0.0.0.0:2000`.
+  - Expose cloudflared metrics on port 2000 on all interfaces: `systemctl edit cloudflared` and add `Environment=TUNNEL_METRICS=:2000` under `[Service]`.
   - Allow ports 8405, 9100 and 2000 from the flanders nodes.
 - **TrueNAS**: under Reporting → Exporters → Add (Graphite), set:
   - prefix `truenas`
@@ -73,7 +73,7 @@ oc apply -f gitops/clusters/flanders/infra/observability/app-of-apps.yaml
 
 ## Access
 
-- **Grafana:** https://grafana.apps.flanders.lab.gfontana.me (OpenShift login).
+- **Grafana:** https://mon.gfontana.me 
   - The `homelab` datasource (default) is this stack.
   - The `flanders` datasource is the cluster's own Thanos querier.
   - Dashboards are in the **Homelab** folder. Home Assistant has no maintained community dashboard, so its dashboard is custom (`dashboard-home-assistant.yaml` in the Grafana instance overlay).
