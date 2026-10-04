@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+data:
+  config.yaml: |
+    prometheusK8s:
+      retention: 15d
+      volumeClaimTemplate:
+        spec:
+          storageClassName: truenas-iscsi
+          resources:
+            requests:
+              storage: 50Gi

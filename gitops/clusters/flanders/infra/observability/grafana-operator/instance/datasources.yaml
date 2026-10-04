@@ -1,0 +1,46 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: homelab
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  datasource:
+    name: homelab
+    type: prometheus
+    access: proxy
+    isDefault: true
+    url: http://homelab-prometheus.homelab-monitoring.svc:9090
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: flanders
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  valuesFrom:
+    - targetPath: secureJsonData.httpHeaderValue1
+      valueFrom:
+        secretKeyRef:
+          name: grafana-auth-secret
+          key: token
+  datasource:
+    name: flanders
+    type: prometheus
+    access: proxy
+    isDefault: false
+    url: https://thanos-querier.openshift-monitoring.svc:9091
+    jsonData:
+      httpHeaderName1: Authorization
+      tlsSkipVerify: true
+    secureJsonData:
+      httpHeaderValue1: Bearer ${token}

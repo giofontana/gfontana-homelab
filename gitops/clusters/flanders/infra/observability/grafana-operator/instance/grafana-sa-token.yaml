@@ -1,0 +1,10 @@
+# Long-lived token for grafana-sa (created by the operator), used by the flanders datasource
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-auth-secret
+  namespace: homelab-monitoring
+  annotations:
+    kubernetes.io/service-account.name: grafana-sa
+    argocd.argoproj.io/sync-wave: "2"
+type: kubernetes.io/service-account-token

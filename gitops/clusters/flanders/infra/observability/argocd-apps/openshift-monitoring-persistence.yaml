@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openshift-monitoring-persistence
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+  labels:
+    gitops.ownedBy: default
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+    - group: ""
+      kind: ConfigMap
+      name: cluster-monitoring-config
+      namespace: openshift-monitoring
+      jqPathExpressions:
+        - .data."config.yaml"
+  project: default
+  source:
+    path: gitops/clusters/flanders/infra/observability/openshift-monitoring-persistence/
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true

@@ -1,0 +1,43 @@
+# The load balancer VM: HAProxy's built-in prometheus-exporter, node_exporter and
+# cloudflared's metrics endpoint. The job label tells them apart.
+apiVersion: monitoring.rhobs/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: lb-haproxy
+  namespace: homelab-monitoring
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  jobName: haproxy
+  scrapeInterval: 30s
+  staticConfigs:
+    - targets:
+        - lb.lab.gfontana.me:8405
+---
+apiVersion: monitoring.rhobs/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: lb-node
+  namespace: homelab-monitoring
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  jobName: node
+  scrapeInterval: 30s
+  staticConfigs:
+    - targets:
+        - lb.lab.gfontana.me:9100
+---
+apiVersion: monitoring.rhobs/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: lb-cloudflared
+  namespace: homelab-monitoring
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  jobName: cloudflared
+  scrapeInterval: 30s
+  staticConfigs:
+    - targets:
+        - lb.lab.gfontana.me:2000

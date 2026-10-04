@@ -1,0 +1,45 @@
+# In-cluster exporters with a fixed target. The iDRAC exporter is multi-target and
+# is scraped through a ScrapeConfig in the cluster overlay instead.
+apiVersion: monitoring.rhobs/v1
+kind: ServiceMonitor
+metadata:
+  name: unpoller
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: unpoller
+  endpoints:
+    - port: metrics
+      interval: 30s
+---
+apiVersion: monitoring.rhobs/v1
+kind: ServiceMonitor
+metadata:
+  name: pihole-exporter
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pihole-exporter
+  endpoints:
+    - port: metrics
+      interval: 30s
+---
+apiVersion: monitoring.rhobs/v1
+kind: ServiceMonitor
+metadata:
+  name: truenas-graphite-exporter
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: truenas-graphite-exporter
+  endpoints:
+    - port: metrics
+      interval: 30s
+      # Keep the TrueNAS hostname from the mapping instead of the exporter pod
+      honorLabels: true

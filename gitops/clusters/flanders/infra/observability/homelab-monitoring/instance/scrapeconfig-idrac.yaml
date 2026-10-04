@@ -1,0 +1,26 @@
+# Each iDRAC is passed to idrac-exporter as ?target=<host>. Redfish collection is
+# slow on iDRAC8, so scrape less often and allow a long timeout.
+apiVersion: monitoring.rhobs/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: idrac
+  namespace: homelab-monitoring
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  jobName: idrac
+  scrapeInterval: 2m
+  scrapeTimeout: 90s
+  metricsPath: /metrics
+  staticConfigs:
+    - targets:
+        - idrac-bart.lab.gfontana.me
+        - idrac-homer.lab.gfontana.me
+        - idrac-marge.lab.gfontana.me
+  relabelings:
+    - sourceLabels: [__address__]
+      targetLabel: __param_target
+    - sourceLabels: [__param_target]
+      targetLabel: instance
+    - targetLabel: __address__
+      replacement: idrac-exporter.homelab-monitoring.svc:9348

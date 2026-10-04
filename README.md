@@ -7,7 +7,7 @@ GitOps repository for managing two bare-metal Red Hat OpenShift clusters using A
 | Cluster | Role | Description |
 |---------|------|-------------|
 | **simpsons** | Hub | Primary cluster running ACM, ArgoCD, NVIDIA GPU, ODF storage, full observability stack |
-| **flanders** | Spoke | Managed cluster with LVMS and TrueNAS CSI storage, virtualization, and networking |
+| **flanders** | Spoke | Managed cluster with LVMS and TrueNAS CSI storage, virtualization, networking, and the homelab metrics stack |
 
 Both clusters run on Dell bare-metal servers with iDRAC out-of-band management.
 
@@ -42,6 +42,7 @@ gfontana-homelab/
 │   │           ├── compute/        # Virtualization
 │   │           ├── platform/       # ArgoCD
 │   │           ├── network/        # NMState, OVN config
+│   │           ├── observability/  # Persistent monitoring, COO homelab MonitoringStack, Grafana
 │   │           ├── security/       # cert-manager, Vault, External Secrets, OAuth
 │   │           └── storage/        # LVMS, TrueNAS CSI
 │   └── components/                  # Reusable bases
@@ -71,8 +72,9 @@ Each operator follows a consistent three-layer pattern:
 |----------|---------|:--------:|:--------:|
 | Advanced Cluster Management | release-2.17 | x | |
 | cert-manager | stable-v1 | x | x |
-| Cluster Observability Operator | stable | x | |
+| Cluster Observability Operator | stable | x | x |
 | External Secrets Operator | stable-v1 | x | x |
+| Grafana Operator (community) | v5 | | x |
 | HashiCorp Vault (Helm chart) | 0.34.0 | x | x |
 | Local Storage | stable | x | |
 | LVMS Operator | — | | x |
@@ -95,6 +97,7 @@ Each operator follows a consistent three-layer pattern:
 
 - **Frigate** — NVR with AI object detection, deployed with CPU or NVIDIA GPU overlay. NFS media storage, TLS via cert-manager/Let's Encrypt. See [Frigate README](gitops/components/apps/frigate/README.md).
 - **OpenClaw** — AI assistant gateway on simpsons, exposed through an edge Route with secrets from Vault. See [OpenClaw README](gitops/components/apps/openclaw/README.md).
+- **Homelab monitoring** — Prometheus (COO MonitoringStack) and Grafana on flanders, scraping the iDRACs, UniFi, TrueNAS, Pi-hole, Home Assistant and the HAProxy/cloudflared VM. See [homelab monitoring README](gitops/components/infra/homelab-monitoring/README.md).
 - **vm-sample-acm** — Sample VM deployed via ACM ApplicationSet with Placement-based scheduling
 - **VMware resources** — ESXi VM definitions for MTV migration
 
