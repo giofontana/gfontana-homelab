@@ -13,6 +13,7 @@ resources:
   - cluster-monitoring-view-crb.yaml
   - datasources.yaml
   - dashboards.yaml
+  - dashboard-home-assistant.yaml
 
 patches:
   # The catalog ships a placeholder session secret; ESO provides the real one
