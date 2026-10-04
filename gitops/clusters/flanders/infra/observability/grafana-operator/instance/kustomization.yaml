@@ -14,6 +14,8 @@ resources:
   - datasources.yaml
   - dashboards.yaml
   - dashboard-home-assistant.yaml
+  - certificate-grafana-mon.yaml
+  - router-secret-reader-rbac.yaml
 
 patches:
   # The catalog ships a placeholder session secret; ESO provides the real one
@@ -29,4 +31,9 @@ patches:
     patch: |-
       - op: add
         path: /spec/route/spec/host
-        value: grafana.apps.flanders.lab.gfontana.me
+        value: mon.gfontana.me
+      # Let's Encrypt certificate from cert-manager, read by the router from the Secret
+      - op: add
+        path: /spec/route/spec/tls/externalCertificate
+        value:
+          name: grafana-mon-tls
