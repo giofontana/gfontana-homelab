@@ -15,6 +15,9 @@ data:
     {
       defaults: {
         workspace: "~/.openclaw/workspace",
+        // The pod runs in UTC; America/New_York switches between EST and EDT automatically.
+        userTimezone: "America/New_York",
+        envelopeTimezone: "user",
       },
       list: [
         {
