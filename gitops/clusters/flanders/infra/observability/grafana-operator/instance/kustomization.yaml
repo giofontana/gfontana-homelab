@@ -29,4 +29,4 @@ patches:
     patch: |-
       - op: add
         path: /spec/route/spec/host
-        value: grafana.apps.flanders.lab.gfontana.me
+        value: mon.gfontana.me

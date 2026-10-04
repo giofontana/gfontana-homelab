@@ -24,7 +24,7 @@ spec:
             - name: UP_INFLUXDB_DISABLE
               value: "true"
             - name: UP_PROMETHEUS_HTTP_LISTEN
-              value: "0.0.0.0:9130"
+              value: ":9130"
             # UniFi consoles serve a self-signed certificate
             - name: UP_UNIFI_DEFAULT_VERIFY_SSL
               value: "false"
