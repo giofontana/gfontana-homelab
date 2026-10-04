@@ -4,7 +4,8 @@ metadata:
   name: homelab
   namespace: homelab-monitoring
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    # After the Grafana instance (wave 1): a datasource with no ready instance fails its health check
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   instanceSelector:
     matchLabels:
