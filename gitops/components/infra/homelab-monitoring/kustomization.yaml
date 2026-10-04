@@ -1,0 +1,13 @@
+# Exporters for homelab devices outside OpenShift, plus the ServiceMonitors that
+# hook them into a COO MonitoringStack selecting monitoring.gfontana.me/stack=homelab.
+# Credentials and device addresses come from Secrets the cluster overlay provides:
+#   idrac-credentials, unpoller-credentials, pihole-credentials
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - idrac-exporter.yaml
+  - unpoller.yaml
+  - pihole-exporter.yaml
+  - truenas-graphite-exporter.yaml
+  - servicemonitors.yaml

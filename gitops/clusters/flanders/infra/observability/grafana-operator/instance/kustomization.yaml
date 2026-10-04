@@ -1,0 +1,31 @@
+# OAuth-proxied Grafana from the gitops-catalog with two datasources:
+#   homelab  - the homelab MonitoringStack Prometheus (default)
+#   flanders - the cluster's own Thanos querier, via a cluster-monitoring-view token
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: homelab-monitoring
+
+resources:
+  - github.com/giofontana/gitops-catalog/grafana-operator/base/instance
+  - grafana-proxy-session-vault.yaml
+  - grafana-auth-secret.yaml
+  - cluster-monitoring-view-crb.yaml
+  - datasources.yaml
+  - dashboards.yaml
+
+patches:
+  # The catalog ships a placeholder session secret; ESO provides the real one
+  - patch: |-
+      $patch: delete
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: grafana-proxy
+  - target:
+      kind: Grafana
+      name: grafana
+    patch: |-
+      - op: add
+        path: /spec/route/spec/host
+        value: grafana.apps.flanders.lab.gfontana.me

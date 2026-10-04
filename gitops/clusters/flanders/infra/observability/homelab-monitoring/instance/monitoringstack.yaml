@@ -1,0 +1,30 @@
+# Prometheus for homelab devices outside OpenShift. Picks up ServiceMonitors and
+# ScrapeConfigs labelled monitoring.gfontana.me/stack=homelab in this namespace.
+# Served in-cluster at http://homelab-prometheus.homelab-monitoring.svc:9090
+apiVersion: monitoring.rhobs/v1alpha1
+kind: MonitoringStack
+metadata:
+  name: homelab
+  namespace: homelab-monitoring
+spec:
+  retention: 15d
+  resourceSelector:
+    matchLabels:
+      monitoring.gfontana.me/stack: homelab
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+  prometheusConfig:
+    replicas: 1
+    persistentVolumeClaim:
+      storageClassName: truenas-iscsi
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+  alertmanagerConfig:
+    disabled: true

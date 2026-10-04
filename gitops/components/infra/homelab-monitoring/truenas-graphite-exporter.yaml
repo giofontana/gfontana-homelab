@@ -1,0 +1,68 @@
+# graphite_exporter bundled with the TrueNAS SCALE mapping from
+# https://github.com/Supporterino/truenas-graphite-to-prometheus
+# TrueNAS pushes to it (Reporting > Exporters > Graphite, prefix "truenas"), so the
+# Graphite port is published on every node through a fixed NodePort.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: truenas-graphite-exporter
+  labels:
+    app.kubernetes.io/name: truenas-graphite-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: truenas-graphite-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: truenas-graphite-exporter
+    spec:
+      containers:
+        - name: graphite-exporter
+          image: ghcr.io/supporterino/truenas-graphite-to-prometheus:v2.2.1
+          ports:
+            - name: metrics
+              containerPort: 9108
+            - name: graphite
+              containerPort: 9109
+          readinessProbe:
+            tcpSocket:
+              port: metrics
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: truenas-graphite-exporter
+  labels:
+    app.kubernetes.io/name: truenas-graphite-exporter
+spec:
+  selector:
+    app.kubernetes.io/name: truenas-graphite-exporter
+  ports:
+    - name: metrics
+      port: 9108
+      targetPort: metrics
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: truenas-graphite-ingest
+  labels:
+    app.kubernetes.io/name: truenas-graphite-exporter
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: truenas-graphite-exporter
+  ports:
+    - name: graphite
+      protocol: TCP
+      port: 9109
+      targetPort: graphite
+      nodePort: 32003

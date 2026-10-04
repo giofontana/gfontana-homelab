@@ -1,0 +1,191 @@
+# Community dashboards for the homelab exporters. Imported dashboards declare a
+# datasource input, which is mapped to the homelab datasource here; the rest use
+# a datasource variable that defaults to it.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-network-sites
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 11311
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-usw-insights
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 11312
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-usg-insights
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 11313
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-uap-insights
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 11314
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-client-insights
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 11315
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: pihole
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 10176
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: haproxy
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 12693
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: node-exporter-full
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  grafanaCom:
+    id: 1860
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: idrac
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  url: https://raw.githubusercontent.com/mrlhansen/idrac_exporter/master/grafana/idrac.json
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: truenas-overview
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale.json
+  datasources:
+    - inputName: DS_MIMIR
+      datasourceName: homelab
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: truenas-disk-insights
+  namespace: homelab-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  folder: Homelab
+  instanceSelector:
+    matchLabels:
+      instance: grafana
+  url: https://raw.githubusercontent.com/Supporterino/truenas-graphite-to-prometheus/main/dashboards/truenas_scale_disk_insights.json
+  datasources:
+    - inputName: DS_MIMIR
+      datasourceName: homelab

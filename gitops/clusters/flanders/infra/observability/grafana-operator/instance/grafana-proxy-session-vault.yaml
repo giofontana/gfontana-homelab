@@ -1,0 +1,20 @@
+# Cookie secret for Grafana's OAuth proxy, stored in Vault at
+# secret/homelab-monitoring/grafana (property: session_secret, e.g. `openssl rand -base64 32`)
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grafana-proxy
+  namespace: homelab-monitoring
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: grafana-proxy
+    creationPolicy: Owner
+  data:
+    - secretKey: session_secret
+      remoteRef:
+        key: homelab-monitoring/grafana
+        property: session_secret

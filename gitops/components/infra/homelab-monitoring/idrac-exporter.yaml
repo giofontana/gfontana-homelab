@@ -1,0 +1,52 @@
+# Redfish exporter for the Dell iDRACs. Multi-target: Prometheus passes the iDRAC
+# as ?target=<host> (see the idrac ScrapeConfig in the cluster overlay).
+# The image's built-in config enables all metric groups; credentials come from
+# CONFIG_DEFAULT_USERNAME / CONFIG_DEFAULT_PASSWORD in the idrac-credentials Secret.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idrac-exporter
+  labels:
+    app.kubernetes.io/name: idrac-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: idrac-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: idrac-exporter
+    spec:
+      containers:
+        - name: idrac-exporter
+          image: ghcr.io/mrlhansen/idrac_exporter:2.6.3
+          envFrom:
+            - secretRef:
+                name: idrac-credentials
+          ports:
+            - name: metrics
+              containerPort: 9348
+          readinessProbe:
+            tcpSocket:
+              port: metrics
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idrac-exporter
+  labels:
+    app.kubernetes.io/name: idrac-exporter
+spec:
+  selector:
+    app.kubernetes.io/name: idrac-exporter
+  ports:
+    - name: metrics
+      port: 9348
+      targetPort: metrics

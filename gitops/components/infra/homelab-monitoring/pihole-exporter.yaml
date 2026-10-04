@@ -1,0 +1,53 @@
+# Pi-hole exporter (v1.x speaks the Pi-hole v6 API). The Pi-hole address and app
+# password come from PIHOLE_HOSTNAME / PIHOLE_PASSWORD in the pihole-credentials Secret.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-exporter
+  labels:
+    app.kubernetes.io/name: pihole-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pihole-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pihole-exporter
+    spec:
+      containers:
+        - name: pihole-exporter
+          image: docker.io/ekofr/pihole-exporter:v1.2.0
+          env:
+            - name: PORT
+              value: "9617"
+          envFrom:
+            - secretRef:
+                name: pihole-credentials
+          ports:
+            - name: metrics
+              containerPort: 9617
+          readinessProbe:
+            tcpSocket:
+              port: metrics
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-exporter
+  labels:
+    app.kubernetes.io/name: pihole-exporter
+spec:
+  selector:
+    app.kubernetes.io/name: pihole-exporter
+  ports:
+    - name: metrics
+      port: 9617
+      targetPort: metrics

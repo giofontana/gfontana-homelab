@@ -1,0 +1,20 @@
+# Home Assistant's built-in prometheus integration (needs "prometheus:" in configuration.yaml)
+apiVersion: monitoring.rhobs/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: home-assistant
+  namespace: homelab-monitoring
+  labels:
+    monitoring.gfontana.me/stack: homelab
+spec:
+  jobName: home-assistant
+  scrapeInterval: 1m
+  metricsPath: /api/prometheus
+  authorization:
+    type: Bearer
+    credentials:
+      name: home-assistant-token
+      key: token
+  staticConfigs:
+    - targets:
+        - ha.gfontana.me:8123

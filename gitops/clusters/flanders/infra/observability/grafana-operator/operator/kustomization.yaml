@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: homelab-monitoring
+
+resources:
+  - ../../../../../../components/infra/grafana-operator
+  - operator-group.yaml
+
+patches:
+  - target:
+      kind: Subscription
+      name: grafana
+    path: patch-version.yaml
