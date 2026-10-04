@@ -16,7 +16,7 @@ Metrics for homelab devices that live outside OpenShift, collected by a dedicate
 | UniFi | `unpoller` | `unpoller` |
 | Pi-hole | `pihole-exporter` (Pi-hole v6 API) | `pihole-exporter` |
 | TrueNAS | TrueNAS pushes Graphite to `graphite_exporter` on NodePort `32003` | `truenas-graphite-exporter` |
-| Home Assistant | built-in `/api/prometheus` | `home-assistant` |
+| Home Assistant | built-in `/api/prometheus`, over HTTPS on `ha.gfontana.me:443` | `home-assistant` |
 | LB VM | HAProxy prometheus-exporter `:8405`, node_exporter `:9100`, cloudflared `:2000` | `haproxy`, `node`, `cloudflared` |
 
 Prometheus keeps 15 days on a 50Gi `truenas-iscsi` volume. Alertmanager is disabled.
@@ -46,6 +46,7 @@ Check from a pod (the idrac-exporter image is Alpine-based, so it has `nslookup`
 ### 3. Devices
 
 - **Home Assistant**: add `prometheus:` to `configuration.yaml` and restart.
+- **iDRACs**: the iDRAC rejects requests whose `Host` header doesn't match its own name (HTTP 400), and Prometheus scrapes them by DNS name. On each iDRAC, either set its DNS name to match (`racadm set iDRAC.NIC.DNSRacName idrac-<name>` and `racadm set iDRAC.NIC.DNSDomainName lab.gfontana.me`), or disable the check (`racadm set iDRAC.WebServer.HostHeaderCheck 0`; confirm the attribute exists on your firmware with `racadm get iDRAC.WebServer`).
 - **LB VM**:
   - Expose HAProxy metrics:
     ```
@@ -75,11 +76,11 @@ oc apply -f gitops/clusters/flanders/infra/observability/app-of-apps.yaml
 - **Grafana:** https://grafana.apps.flanders.lab.gfontana.me (OpenShift login).
   - The `homelab` datasource (default) is this stack.
   - The `flanders` datasource is the cluster's own Thanos querier.
-  - Dashboards are in the **Homelab** folder.
+  - Dashboards are in the **Homelab** folder. Home Assistant has no maintained community dashboard, so its dashboard is custom (`dashboard-home-assistant.yaml` in the Grafana instance overlay).
 - **Prometheus:** no Route. Use `oc -n homelab-monitoring port-forward svc/homelab-prometheus 9090` and open http://localhost:9090/targets.
 
 ## Troubleshooting
 
 - **A target is down:** check `/targets` first. DNS failures show as `no such host`.
 - **Exporter pods won't start:** check `oc get externalsecrets -n homelab-monitoring`. Vault is not auto-unsealed, so after a Vault restart the Secrets stop refreshing until it is unsealed.
-- **iDRAC scrapes:** these take tens of seconds (interval 2m, timeout 90s).
+- **iDRAC scrapes:** these take tens of seconds (interval 2m, timeout 90s). `400 Bad Request` in the idrac-exporter logs means the Host header check above.

@@ -1,4 +1,5 @@
-# Home Assistant's built-in prometheus integration (needs "prometheus:" in configuration.yaml)
+# Home Assistant's built-in prometheus integration (needs "prometheus:" in configuration.yaml).
+# ha.gfontana.me only serves HTTPS on 443 (with a valid certificate); 8123 is not reachable.
 apiVersion: monitoring.rhobs/v1alpha1
 kind: ScrapeConfig
 metadata:
@@ -9,6 +10,7 @@ metadata:
 spec:
   jobName: home-assistant
   scrapeInterval: 1m
+  scheme: HTTPS
   metricsPath: /api/prometheus
   authorization:
     type: Bearer
@@ -17,4 +19,4 @@ spec:
       key: token
   staticConfigs:
     - targets:
-        - ha.gfontana.me:8123
+        - ha.gfontana.me:443
