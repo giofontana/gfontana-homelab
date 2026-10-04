@@ -73,7 +73,7 @@ oc apply -f gitops/clusters/flanders/infra/observability/app-of-apps.yaml
 
 ## Access
 
-- **Grafana:** https://mon.gfontana.me (OpenShift login). `mon.gfontana.me` must resolve to the flanders ingress, like `frigate.gfontana.me`. The Route uses the default ingress certificate.
+- **Grafana:** https://mon.gfontana.me 
   - The `homelab` datasource (default) is this stack.
   - The `flanders` datasource is the cluster's own Thanos querier.
   - Dashboards are in the **Homelab** folder. Home Assistant has no maintained community dashboard, so its dashboard is custom (`dashboard-home-assistant.yaml` in the Grafana instance overlay).
