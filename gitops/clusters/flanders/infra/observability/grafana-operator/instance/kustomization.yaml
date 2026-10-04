@@ -9,7 +9,7 @@ namespace: homelab-monitoring
 resources:
   - github.com/giofontana/gitops-catalog/grafana-operator/base/instance
   - grafana-proxy-session-vault.yaml
-  - grafana-auth-secret.yaml
+  - grafana-sa-token.yaml
   - cluster-monitoring-view-crb.yaml
   - datasources.yaml
   - dashboards.yaml
