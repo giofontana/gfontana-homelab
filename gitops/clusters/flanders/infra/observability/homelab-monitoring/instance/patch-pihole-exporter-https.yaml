@@ -1,0 +1,18 @@
+# Our Pi-hole only serves its API over HTTPS on 443 (port 80 refuses connections),
+# with Pi-hole's self-signed certificate.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-exporter
+spec:
+  template:
+    spec:
+      containers:
+        - name: pihole-exporter
+          env:
+            - name: PIHOLE_PROTOCOL
+              value: https
+            - name: PIHOLE_PORT
+              value: "443"
+            - name: SKIP_TLS_VERIFICATION
+              value: "true"

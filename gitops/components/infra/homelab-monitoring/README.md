@@ -83,4 +83,5 @@ oc apply -f gitops/clusters/flanders/infra/observability/app-of-apps.yaml
 
 - **A target is down:** check `/targets` first. DNS failures show as `no such host`.
 - **Exporter pods won't start:** check `oc get externalsecrets -n homelab-monitoring`. Vault is not auto-unsealed, so after a Vault restart the Secrets stop refreshing until it is unsealed.
+- **Pi-hole dashboard empty while the `pihole-exporter` target is up:** the exporter itself can't reach Pi-hole; check `oc logs deploy/pihole-exporter`. Protocol, port and TLS verification are set per cluster (flanders: `patch-pihole-exporter-https.yaml`, HTTPS on 443 with the self-signed cert).
 - **iDRAC scrapes:** these take tens of seconds (interval 2m, timeout 90s). `400 Bad Request` in the idrac-exporter logs means the Host header check above.
