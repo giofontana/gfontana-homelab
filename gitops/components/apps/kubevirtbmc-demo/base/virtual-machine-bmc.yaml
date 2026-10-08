@@ -19,3 +19,8 @@ spec:
   # MetalLB assigns an IP from ip-addresspool-vlan101
   service:
     type: LoadBalancer
+    # KubeVirtBMC (v0.11.0) resets the Service annotations to exactly this map,
+    # while MetalLB re-adds this one; without it they fight in a hot loop that
+    # OOMKills the controller
+    annotations:
+      metallb.io/ip-allocated-from-pool: ip-addresspool-vlan101

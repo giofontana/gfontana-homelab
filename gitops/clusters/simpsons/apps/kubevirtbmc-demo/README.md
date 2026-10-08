@@ -2,7 +2,7 @@
 
 A test VM (`bmc-test` in the `kubevirtbmc-demo` namespace) with a virtual BMC from [KubeVirtBMC](https://docs.kubevirtbmc.io/). The BMC exposes IPMI (623/UDP) and Redfish (80/TCP) on a MetalLB IP. The KubeVirtBMC controller is deployed by the `kubevirtbmc` app in `infra/compute`.
 
-The VM uses `runStrategy: Manual`, so it only runs when the BMC powers it on. It has an empty CD-ROM drive (`cdrom`) where Redfish virtual media is hot-plugged.
+The VM uses `runStrategy: Manual`, so it only runs when the BMC powers it on. It has an empty CD-ROM drive (`cdrom`) where Redfish virtual media is hot-plugged. Its root disk (`bmc-test-rootdisk`, 30Gi) starts blank, so there is nothing to boot until you install an OS from an ISO.
 
 ## Prerequisites
 
