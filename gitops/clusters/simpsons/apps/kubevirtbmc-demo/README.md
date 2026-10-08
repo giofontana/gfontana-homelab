@@ -9,7 +9,7 @@ The VM uses `runStrategy: Manual`, so it only runs when the BMC powers it on. It
 - `ipmitool` and `curl` on your workstation (macOS: `brew install ipmitool`)
 - The BMC credentials stored in simpsons Vault at `secret/kubevirtbmc-demo/bmc-test` (keys `username` and `password`). ESO syncs them into the `bmc-test-credentials` Secret.
 
-Set up these variables first. They work in both bash and zsh. The IP is assigned by MetalLB:
+Set up these variables first. The IP is assigned by MetalLB. `ipmi` is a shell function rather than a variable because zsh does not word-split `$VAR`. The block has no comments, so it pastes cleanly into interactive zsh.
 
 ```bash
 BMC_IP=$(oc -n kubevirtbmc-demo get svc bmc-test-virtbmc \
@@ -19,7 +19,6 @@ BMC_USER=$(oc -n kubevirtbmc-demo get secret bmc-test-credentials \
 BMC_PASS=$(oc -n kubevirtbmc-demo get secret bmc-test-credentials \
   -o jsonpath='{.data.password}' | base64 -d)
 
-# A function, not a variable: zsh does not word-split "$IPMI"
 ipmi() { ipmitool -I lanplus -H "$BMC_IP" -U "$BMC_USER" -P "$BMC_PASS" "$@"; }
 REDFISH="http://$BMC_IP/redfish/v1"
 ```
@@ -70,11 +69,11 @@ curl -s -u "$BMC_USER:$BMC_PASS" -H 'Content-Type: application/json' -X POST \
 
 KubeVirtBMC reads the ISO size and creates a CDI DataVolume named `bmc-test`. The DataVolume uses `ocs-storagecluster-ceph-rbd-virtualization` in Block mode, as set in the VirtualMachineBMC. KubeVirtBMC then hot-plugs the DataVolume into the `cdrom` drive.
 
-The ISO is about 2.9 GB. Wait for the import to finish before booting:
+The ISO is about 2.9 GB. Wait for the import to finish (`PHASE=Succeeded`) and check that the media shows `"Inserted": true` before booting:
 
 ```bash
-oc -n kubevirtbmc-demo get dv bmc-test -w      # wait for PHASE=Succeeded
-curl -s -u "$BMC_USER:$BMC_PASS" "$REDFISH/Managers/BMC/VirtualMedia/CD1"   # "Inserted": true
+oc -n kubevirtbmc-demo get dv bmc-test -w
+curl -s -u "$BMC_USER:$BMC_PASS" "$REDFISH/Managers/BMC/VirtualMedia/CD1"
 ```
 
 ### 2. Set the boot device to CD
