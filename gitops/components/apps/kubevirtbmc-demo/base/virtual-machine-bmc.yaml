@@ -10,6 +10,12 @@ spec:
     name: bmc-test-credentials
   ipmi:
     enabled: true
+  redfish:
+    virtualMedia:
+      # Block avoids CDI filesystem overhead on the exact-size ISO volume
+      storage:
+        storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+        volumeMode: Block
   # MetalLB assigns an IP from ip-addresspool-vlan101
   service:
     type: LoadBalancer

@@ -18,10 +18,15 @@ spec:
       selfHeal: true
     syncOptions:
       - SkipDryRunOnMissingResource=true
-  # The virtual BMC changes the VM power state; don't let selfHeal revert it
+      - RespectIgnoreDifferences=true
+  # The virtual BMC changes the VM power state, hot-plugs virtual media and
+  # rewrites boot order; don't let selfHeal revert it
   ignoreDifferences:
     - group: kubevirt.io
       kind: VirtualMachine
       jsonPointers:
         - /spec/runStrategy
         - /spec/running
+        - /spec/template/spec/volumes
+        - /spec/template/spec/domain/devices/disks
+        - /spec/template/spec/domain/devices/interfaces
