@@ -6,10 +6,10 @@ The VM uses `runStrategy: Manual`, so it only runs when the BMC powers it on. It
 
 ## Prerequisites
 
-- `ipmitool` and `curl` on your workstation
+- `ipmitool` and `curl` on your workstation (macOS: `brew install ipmitool`)
 - The BMC credentials stored in simpsons Vault at `secret/kubevirtbmc-demo/bmc-test` (keys `username` and `password`). ESO syncs them into the `bmc-test-credentials` Secret.
 
-Set up these variables first. The IP is assigned by MetalLB:
+Set up these variables first. They work in both bash and zsh. The IP is assigned by MetalLB:
 
 ```bash
 BMC_IP=$(oc -n kubevirtbmc-demo get svc bmc-test-virtbmc \
@@ -19,7 +19,8 @@ BMC_USER=$(oc -n kubevirtbmc-demo get secret bmc-test-credentials \
 BMC_PASS=$(oc -n kubevirtbmc-demo get secret bmc-test-credentials \
   -o jsonpath='{.data.password}' | base64 -d)
 
-IPMI="ipmitool -I lanplus -H $BMC_IP -U $BMC_USER -P $BMC_PASS"
+# A function, not a variable: zsh does not word-split "$IPMI"
+ipmi() { ipmitool -I lanplus -H "$BMC_IP" -U "$BMC_USER" -P "$BMC_PASS" "$@"; }
 REDFISH="http://$BMC_IP/redfish/v1"
 ```
 
@@ -28,13 +29,13 @@ REDFISH="http://$BMC_IP/redfish/v1"
 ### Check power state
 
 ```bash
-$IPMI power status
+ipmi power status
 ```
 
 ### 1. Power on
 
 ```bash
-$IPMI power on
+ipmi power on
 ```
 
 Starts the VM. Check with `oc -n kubevirtbmc-demo get vmi bmc-test`.
@@ -42,18 +43,18 @@ Starts the VM. Check with `oc -n kubevirtbmc-demo get vmi bmc-test`.
 ### 2. Reset
 
 ```bash
-$IPMI power reset
+ipmi power reset
 ```
 
-Gracefully restarts the running VM. Use `$IPMI power cycle` for a forced restart, with no grace period.
+Gracefully restarts the running VM. Use `ipmi power cycle` for a forced restart, with no grace period.
 
 ### 3. Power off
 
 ```bash
-$IPMI power off
+ipmi power off
 ```
 
-Force-stops the VM immediately, like pulling the plug. Use `$IPMI power soft` for a graceful (ACPI) shutdown.
+Force-stops the VM immediately, like pulling the plug. Use `ipmi power soft` for a graceful (ACPI) shutdown.
 
 ## Redfish: boot the VM from an ISO
 
@@ -84,7 +85,7 @@ curl -s -u "$BMC_USER:$BMC_PASS" -H 'Content-Type: application/json' -X PATCH \
   -d '{"Boot": {"BootSourceOverrideTarget": "Cd", "BootSourceOverrideEnabled": "Once"}}'
 ```
 
-`Once` boots from the ISO on the next start only. Use `Continuous` to keep booting from CD. The equivalent IPMI command is `$IPMI chassis bootdev cdrom`.
+`Once` boots from the ISO on the next start only. Use `Continuous` to keep booting from CD. The equivalent IPMI command is `ipmi chassis bootdev cdrom`.
 
 ### 3. Power on from the ISO
 
