@@ -14,17 +14,24 @@ spec:
         app: bmc-test
     spec:
       domain:
+        cpu:
+          cores: 2
         devices:
           disks:
             - name: containerdisk
               disk:
                 bus: virtio
+            # Empty CD-ROM drive: Redfish InsertMedia hot-plugs the ISO here
+            - name: cdrom
+              cdrom:
+                bus: sata
           interfaces:
             - name: default
               masquerade: {}
+        # Sized for booting a Fedora Live ISO
         resources:
           requests:
-            memory: 128Mi
+            memory: 4Gi
       networks:
         - name: default
           pod: {}
