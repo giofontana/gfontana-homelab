@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubevirtbmc
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+  labels:
+    gitops.ownedBy: default
+spec:
+  destination:
+    namespace: kubevirtbmc-system
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: gitops/clusters/simpsons/infra/compute/kubevirtbmc/aggregate/
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: kubevirtbmc-mutating-webhook-configuration
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: kubevirtbmc-validating-webhook-configuration
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

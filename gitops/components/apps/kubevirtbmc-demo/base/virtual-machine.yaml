@@ -1,0 +1,34 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: bmc-test
+  namespace: kubevirtbmc-demo
+  labels:
+    app: bmc-test
+spec:
+  # Manual so power state is driven by the virtual BMC (IPMI/Redfish)
+  runStrategy: Manual
+  template:
+    metadata:
+      labels:
+        app: bmc-test
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: containerdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+        resources:
+          requests:
+            memory: 128Mi
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: containerdisk
+          containerDisk:
+            image: quay.io/kubevirt/cirros-container-disk-demo

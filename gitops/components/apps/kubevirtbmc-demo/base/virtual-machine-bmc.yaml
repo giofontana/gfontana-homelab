@@ -1,0 +1,17 @@
+apiVersion: bmc.kubevirt.io/v1beta1
+kind: VirtualMachineBMC
+metadata:
+  name: bmc-test
+  namespace: kubevirtbmc-demo
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  virtualMachineRef:
+    name: bmc-test
+  authSecretRef:
+    name: bmc-test-credentials
+  ipmi:
+    enabled: true
+  # MetalLB assigns an IP from ip-addresspool-vlan101
+  service:
+    type: LoadBalancer

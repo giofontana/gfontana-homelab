@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubevirtbmc-demo
+  namespace: openshift-gitops
+spec:
+  project: workloads
+  source:
+    path: gitops/clusters/simpsons/apps/kubevirtbmc-demo
+    repoURL: https://github.com/giofontana/gfontana-homelab.git
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kubevirtbmc-demo
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - SkipDryRunOnMissingResource=true
+  # The virtual BMC changes the VM power state; don't let selfHeal revert it
+  ignoreDifferences:
+    - group: kubevirt.io
+      kind: VirtualMachine
+      jsonPointers:
+        - /spec/runStrategy
+        - /spec/running
