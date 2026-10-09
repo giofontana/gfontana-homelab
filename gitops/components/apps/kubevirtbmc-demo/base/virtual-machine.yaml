@@ -8,6 +8,22 @@ metadata:
 spec:
   # Manual so power state is driven by the virtual BMC (IPMI/Redfish)
   runStrategy: Manual
+  # Blank, persistent root disk to install an OS onto from the virtual media ISO.
+  # Not named bmc-test: KubeVirtBMC uses the VM name for the ISO DataVolume.
+  dataVolumeTemplates:
+    - metadata:
+        name: bmc-test-rootdisk
+      spec:
+        source:
+          blank: {}
+        storage:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 30Gi
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          volumeMode: Block
   template:
     metadata:
       labels:
@@ -18,7 +34,7 @@ spec:
           cores: 2
         devices:
           disks:
-            - name: containerdisk
+            - name: rootdisk
               disk:
                 bus: virtio
             # Empty CD-ROM drive: Redfish InsertMedia hot-plugs the ISO here
@@ -36,6 +52,6 @@ spec:
         - name: default
           pod: {}
       volumes:
-        - name: containerdisk
-          containerDisk:
-            image: quay.io/kubevirt/cirros-container-disk-demo
+        - name: rootdisk
+          dataVolume:
+            name: bmc-test-rootdisk
