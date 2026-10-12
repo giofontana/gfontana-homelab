@@ -22,5 +22,5 @@ data:
       },
       "agents": { "$include": "/config-git/agents.json5" },
       "mcp": { "$include": "/config-git/mcp.json5" },
-      "cron": { "enabled": false }
+      "cron": { "enabled": true }
     }

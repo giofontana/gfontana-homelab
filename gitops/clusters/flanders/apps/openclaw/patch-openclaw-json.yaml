@@ -27,5 +27,5 @@ data:
       "mcp": { "$include": "/config-git/mcp.json5" },
       "channels": { "$include": "/config-git/channels.json5" },
       "bindings": { "$include": "/config-git/bindings.json5" },
-      "cron": { "enabled": false }
+      "cron": { "enabled": true }
     }
