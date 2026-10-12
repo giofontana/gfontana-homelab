@@ -34,6 +34,9 @@ spec:
             - sh
             - -c
             - |
+              # The PVC is mounted at /home/node, so its root (owned by root via fsGroup) is $HOME and
+              # .openclaw is created by UID 1000. OpenClaw chmods its state dir to 0700 and needs to own it.
+              mkdir -p /home/node/.openclaw
               # Seed-if-missing: the PVC copy owns config after first boot so edits made
               # through OpenClaw (onboard, channels add, doctor --fix, Control UI) survive restarts.
               [ -f /home/node/.openclaw/openclaw.json ] || cp /config/openclaw.json /home/node/.openclaw/openclaw.json
@@ -68,7 +71,7 @@ spec:
               cpu: 100m
           volumeMounts:
             - name: openclaw-home
-              mountPath: /home/node/.openclaw
+              mountPath: /home/node
             - name: config
               mountPath: /config
             - name: workspace-secret
@@ -165,7 +168,7 @@ spec:
             timeoutSeconds: 5
           volumeMounts:
             - name: openclaw-home
-              mountPath: /home/node/.openclaw
+              mountPath: /home/node
             - name: tmp-volume
               mountPath: /tmp
             # Git-owned config sections (agents.json5, mcp.json5) pulled in via $include.
