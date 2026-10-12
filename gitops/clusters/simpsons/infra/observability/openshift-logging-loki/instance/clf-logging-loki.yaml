@@ -23,6 +23,8 @@ spec:
         target:
           name: logging-loki
           namespace: openshift-logging
+        tuning:
+          deliveryMode: AtMostOnce
       name: default-lokistack
       tls:
         ca:
