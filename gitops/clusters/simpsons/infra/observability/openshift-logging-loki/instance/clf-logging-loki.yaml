@@ -7,6 +7,14 @@ metadata:
     argocd.argoproj.io/compare-options: IgnoreExtraneous  
 spec:
   managementState: Managed
+  collector:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "6"
+        memory: 4Gi
   outputs:
     - lokiStack:
         authentication:
