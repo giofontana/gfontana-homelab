@@ -18,6 +18,9 @@ data:
         // The pod runs in UTC; America/New_York switches between EST and EDT automatically.
         userTimezone: "America/New_York",
         envelopeTimezone: "user",
+        // Without this, sessions with no /model override (cron runs, new chats) fall back to
+        // openai/gpt-5.5, which has no credentials here (only ANTHROPIC_API_KEY and GEMINI_API_KEY are set).
+        model: { primary: "anthropic/claude-haiku-4-5" },
       },
       list: [
         {
