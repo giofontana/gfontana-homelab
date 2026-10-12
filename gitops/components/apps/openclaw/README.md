@@ -16,8 +16,7 @@ Layout:
   (`patch-openclaw-json.yaml`, which carries the Control UI origin), the Route host, and the `openclaw-secrets`
   ExternalSecret for that cluster's Vault
 
-OpenClaw runs on simpsons and flanders with the same agents and MCP servers. Each cluster has its own Vault, PVC
-and device pairings. flanders keeps its PVC on `truenas-iscsi` instead of the default LVMS class.
+OpenClaw runs on flanders only. Its PVC uses `truenas-iscsi` instead of the default storage class.
 
 ## Prerequisites
 
@@ -94,7 +93,7 @@ oc rollout restart -n openclaw deploy/openclaw
 ```
 
 In the Vault UI, use the key/value view (not JSON mode) and paste the file as the value; newlines are kept.
-Each cluster has its own Vault, so add it to every cluster that should have the file. Without the path, the pod
+Store it in flanders' Vault. Without the path, the pod
 still starts (the Secret volume is optional), but the ExternalSecret reports a sync error. ESO refreshes hourly;
 force a sync with `oc annotate externalsecrets.external-secrets.io -n openclaw openclaw-workspace force-sync=$(date +%s) --overwrite`.
 
@@ -111,10 +110,10 @@ Check the connection and the tools it provides:
 oc exec -n openclaw deploy/openclaw -- openclaw mcp probe homeassistant
 ```
 
-## Telegram (flanders only)
+## Telegram
 
 flanders runs a Telegram bot that talks to the `home-assistant` agent (Jarvis). Telegram allows only one poller
-per bot token, so it must not be enabled on simpsons too. The config lives in the flanders overlay:
+per bot token, so it must not run anywhere else with the same token. The config lives in the flanders overlay:
 
 - `patch-telegram-config.yaml`: `channels.json5` (DMs only from the owner's numeric Telegram user ID, groups
   disabled) and `bindings.json5` (route Telegram to `home-assistant`), pulled in with `$include`
