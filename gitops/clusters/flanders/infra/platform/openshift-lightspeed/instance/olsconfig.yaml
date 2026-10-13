@@ -1,0 +1,18 @@
+apiVersion: ols.openshift.io/v1alpha1
+kind: OLSConfig
+metadata:
+  name: cluster
+spec:
+  llm:
+    providers:
+      # No native Anthropic provider type; use Anthropic's OpenAI-compatible endpoint
+      - name: anthropic
+        type: openai
+        url: https://api.anthropic.com/v1
+        credentialsSecretRef:
+          name: llm-credentials
+        models:
+          - name: claude-haiku-5-5
+  ols:
+    defaultProvider: anthropic
+    defaultModel: claude-haiku-5-5
