@@ -5,9 +5,11 @@ metadata:
 spec:
   llm:
     providers:
-      # No native Anthropic provider type; use Anthropic's OpenAI-compatible endpoint
+      # No native Anthropic provider type. Use the OpenAI-compatible endpoint via
+      # rhoai_vllm: it calls /v1/chat/completions, while type openai calls
+      # /v1/responses, which Anthropic does not implement (404).
       - name: anthropic
-        type: openai
+        type: rhoai_vllm
         url: https://api.anthropic.com/v1
         credentialsSecretRef:
           name: llm-credentials
