@@ -5,6 +5,7 @@ resources:
   - ./advanced-cluster-management/operator
   - ./mtv-operator/operator
   - ./openshift-ai/operator
+  - ./openshift-lightspeed/operator
   - ./openshift-gitops-operator/operator
   - ./openshift-image-registry/aggregate
   - ./openshift-pipelines/operator
