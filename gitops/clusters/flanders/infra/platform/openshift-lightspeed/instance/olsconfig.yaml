@@ -18,3 +18,9 @@ spec:
   ols:
     defaultProvider: anthropic
     defaultModel: claude-haiku-5-5
+    guardrails:
+      # The tool-result classifier sends response_format json_schema without
+      # "strict", which Anthropic rejects (400), so every MCP tool call fails.
+      # Re-enable once lightspeed-service sends strict.
+      toolResultInspection:
+        enabled: false
