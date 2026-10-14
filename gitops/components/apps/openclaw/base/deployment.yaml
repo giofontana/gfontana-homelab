@@ -77,11 +77,12 @@ spec:
             - name: workspace-secret
               mountPath: /config-secret
               readOnly: true
-        # ffmpeg/ffprobe for the gateway. The image puts /home/node/.local/bin (on the PVC) on PATH,
-        # so the binaries are installed there once from BtbN's build (linked from ffmpeg.org) and
-        # reused on every start. They link only against glibc, which the Debian-based gateway has.
+        # ffmpeg/ffprobe for the gateway, from BtbN's build (linked from ffmpeg.org; glibc-only deps,
+        # which the Debian-based gateway has). Installed once into ~/.ffmpeg/bin on the PVC and reused.
+        # OpenClaw only runs ffmpeg from trusted system dirs (/usr/bin, /bin, ..., /snap/bin), never
+        # from PATH, so the gateway mounts this dir read-only at /snap/bin (unused in the image).
         # Non-fatal: if the download fails, OpenClaw still starts and the next start retries.
-        # To update, delete ~/.local/bin/ffmpeg and ~/.local/bin/ffprobe and restart.
+        # To update, delete ~/.ffmpeg/bin/ffmpeg and ~/.ffmpeg/bin/ffprobe and restart.
         - name: install-ffmpeg
           image: alpine:3.22
           imagePullPolicy: IfNotPresent
@@ -89,10 +90,15 @@ spec:
             - sh
             - -c
             - |
-              bin=/home/node/.local/bin
-              [ -x "$bin/ffmpeg" ] && [ -x "$bin/ffprobe" ] && exit 0
+              bin=/home/node/.ffmpeg/bin
+              mkdir -p "$bin"
+              # Move binaries from the previous install location instead of downloading again.
+              for b in ffmpeg ffprobe; do
+                [ -f "/home/node/.local/bin/$b" ] && [ ! -f "$bin/$b" ] && mv "/home/node/.local/bin/$b" "$bin/$b"
+              done
+              [ -f "$bin/ffmpeg" ] && [ -f "$bin/ffprobe" ] && exit 0
               url=https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-linux64-gpl-8.1.tar.xz
-              mkdir -p "$bin" /tmp/ff
+              mkdir -p /tmp/ff
               if wget -qO /tmp/ff/ffmpeg.tar.xz "$url" && tar -xJf /tmp/ff/ffmpeg.tar.xz -C /tmp/ff; then
                 cp /tmp/ff/*/bin/ffmpeg /tmp/ff/*/bin/ffprobe "$bin/" && echo "ffmpeg installed"
               else
@@ -215,6 +221,11 @@ spec:
             # Git-owned config sections (agents.json5, mcp.json5) pulled in via $include.
             - name: config
               mountPath: /config-git
+              readOnly: true
+            # ffmpeg/ffprobe from the install-ffmpeg init container, in a dir OpenClaw trusts.
+            - name: openclaw-home
+              mountPath: /snap/bin
+              subPath: .ffmpeg/bin
               readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
