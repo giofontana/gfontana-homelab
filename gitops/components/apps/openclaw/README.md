@@ -130,14 +130,14 @@ To find your user ID without a third-party bot, send the bot a message and read 
 
 ## ffmpeg
 
-The upstream image has no ffmpeg. The `install-ffmpeg` init container downloads `ffmpeg` and `ffprobe` from
-[BtbN's FFmpeg builds](https://github.com/BtbN/FFmpeg-Builds/releases) (8.1 branch, linked from ffmpeg.org) into
-`~/.local/bin` on the PVC, which the image already has on `PATH`. It only downloads when they are missing, and a
-failed download doesn't block startup. To update, delete them and restart:
+The upstream image has no ffmpeg, and OpenClaw only runs `ffmpeg`/`ffprobe` from trusted system directories
+(`/usr/bin`, `/bin`, ..., `/snap/bin`), never from `PATH`. On every pod start, the `install-ffmpeg` init container
+downloads them from [BtbN's FFmpeg builds](https://github.com/BtbN/FFmpeg-Builds/releases) (8.1 branch, linked from
+ffmpeg.org) into the `additional-bins` emptyDir, which the gateway mounts read-only at `/snap/bin`. A failed
+download doesn't block startup. Check it with:
 
 ```bash
-oc exec -n openclaw deploy/openclaw -- rm /home/node/.local/bin/ffmpeg /home/node/.local/bin/ffprobe
-oc rollout restart -n openclaw deploy/openclaw
+oc exec -n openclaw deploy/openclaw -- /snap/bin/ffmpeg -version
 ```
 
 ## Upgrading
