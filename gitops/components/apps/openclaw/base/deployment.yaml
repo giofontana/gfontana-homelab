@@ -77,6 +77,47 @@ spec:
             - name: workspace-secret
               mountPath: /config-secret
               readOnly: true
+        # ffmpeg/ffprobe for the gateway. The image puts /home/node/.local/bin (on the PVC) on PATH,
+        # so the binaries are installed there once from BtbN's build (linked from ffmpeg.org) and
+        # reused on every start. They link only against glibc, which the Debian-based gateway has.
+        # Non-fatal: if the download fails, OpenClaw still starts and the next start retries.
+        # To update, delete ~/.local/bin/ffmpeg and ~/.local/bin/ffprobe and restart.
+        - name: install-ffmpeg
+          image: alpine:3.22
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              bin=/home/node/.local/bin
+              [ -x "$bin/ffmpeg" ] && [ -x "$bin/ffprobe" ] && exit 0
+              url=https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-linux64-gpl-8.1.tar.xz
+              mkdir -p "$bin" /tmp/ff
+              if wget -qO /tmp/ff/ffmpeg.tar.xz "$url" && tar -xJf /tmp/ff/ffmpeg.tar.xz -C /tmp/ff; then
+                cp /tmp/ff/*/bin/ffmpeg /tmp/ff/*/bin/ffprobe "$bin/" && echo "ffmpeg installed"
+              else
+                echo "WARNING: ffmpeg download failed; continuing without it"
+              fi
+              # /tmp is the gateway's emptyDir too; don't leave the archive behind.
+              rm -rf /tmp/ff
+              exit 0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: "1"
+          volumeMounts:
+            - name: openclaw-home
+              mountPath: /home/node
+            - name: tmp-volume
+              mountPath: /tmp
       containers:
         - name: gateway
           # Bump this immutable versioned tag when upgrading OpenClaw.
