@@ -30,8 +30,10 @@ data:
       "cron": { "enabled": true },
       "tts": {
         "provider": "google",
+        "providers": {
           "google": {
             "apiKey": "${GEMINI_API_KEY}"
+          }
         }
       }
     }
