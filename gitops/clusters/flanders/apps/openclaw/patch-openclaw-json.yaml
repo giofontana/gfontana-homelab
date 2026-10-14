@@ -27,7 +27,7 @@ data:
       "mcp": { "$include": "/config-git/mcp.json5" },
       "channels": { "$include": "/config-git/channels.json5" },
       "bindings": { "$include": "/config-git/bindings.json5" },
-      "cron": { "enabled": true }
+      "cron": { "enabled": true },
       "tts": {
         "provider": "google",
           "google": {
