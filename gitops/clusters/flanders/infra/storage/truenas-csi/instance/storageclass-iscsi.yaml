@@ -4,6 +4,8 @@ metadata:
   name: truenas-iscsi
   annotations:
     description: Provides RWO Filesystem & Block volumes backed by TrueNAS iSCSI zvols
+    storageclass.kubernetes.io/is-default-class: 'true'
+    storageclass.kubevirt.io/is-default-virt-class: 'true'
 provisioner: csi.truenas.io
 parameters:
   protocol: iscsi
