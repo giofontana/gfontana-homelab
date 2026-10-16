@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frigate
+  namespace: frigate
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: maude.flanders
