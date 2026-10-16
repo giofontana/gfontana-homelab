@@ -7,7 +7,7 @@ commonAnnotations:
   argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 
 resources:
-  - ../../../../components/apps/frigate/overlays/vaapi
+  - ../../../../components/apps/frigate/overlays/cpu
   - frigate-config-secret-sealed.yaml
   - certificate-frigate.yaml
 
@@ -15,3 +15,4 @@ patchesStrategicMerge:
   - patch-cert-keys.yaml
   - patch-route-host.yaml
   - patch-db-pvc-storageclass.yaml
+  - patch-deployment-nodeselector.yaml
