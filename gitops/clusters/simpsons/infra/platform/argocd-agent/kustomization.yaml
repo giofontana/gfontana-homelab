@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Argo CD Agent hub (principal) for HCP clusters ocp1/ocp2, wired through ACM GitOpsCluster.
+# Separate instance on purpose: the principal runs with the application controller disabled,
+# so it must NOT be the openshift-gitops instance that reconciles simpsons' own apps.
+
+commonAnnotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+
+resources:
+  - namespace.yaml
+  - argocd.yaml
+  - appproject-default.yaml
+  - managedclustersetbinding.yaml
+  - placement.yaml
+  - gitopscluster.yaml

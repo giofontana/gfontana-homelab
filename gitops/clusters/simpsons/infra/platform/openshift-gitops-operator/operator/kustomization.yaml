@@ -9,3 +9,7 @@ patches:
       kind: Subscription
       name: openshift-gitops-operator
     path: patch-version.yaml
+  - target:
+      kind: Subscription
+      name: openshift-gitops-operator
+    path: patch-env.yaml
