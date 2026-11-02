@@ -8,6 +8,7 @@ automated by ACM `GitOpsCluster` (`gitopsAddon` + `argoCDAgent`).
 | Principal (UI, no app-controller) | `ArgoCD argocd-hub` in ns `argocd-hub` |
 | Cluster selection | `Placement argo-agent-placement` (`name In [ocp1, ocp2]`) |
 | PKI, spoke operator + agent, cluster secrets | `GitOpsCluster argo-agent` (ACM generates `argocd-agent-*` secrets) |
+| Spoke app-controller RBAC (cluster-admin) | `Policy argo-agent-controller-rbac` (`policy-spoke-rbac.yaml`) |
 | Cluster-scoped instance | `ARGOCD_CLUSTER_CONFIG_NAMESPACES` in `../openshift-gitops-operator/operator/patch-env.yaml` |
 
 `openshift-gitops` (simpsons' own apps) is untouched and keeps working in push mode.
