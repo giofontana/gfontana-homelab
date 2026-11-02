@@ -16,3 +16,4 @@ resources:
   - placement.yaml
   - gitopscluster.yaml
   - policy-spoke-rbac.yaml
+  - consolelink.yaml
