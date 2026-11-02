@@ -1,0 +1,11 @@
+# argocd-hub (Argo CD Agent principal) must be a cluster-scoped instance.
+# DISABLE_DEFAULT_ARGOCD_CONSOLELINK mirrors argocd-instances/patch-subscription-job so
+# selfHeal and that job don't fight over spec.config.env.
+- op: add
+  path: /spec/config
+  value:
+    env:
+      - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+        value: openshift-gitops,argocd-hub
+      - name: DISABLE_DEFAULT_ARGOCD_CONSOLELINK
+        value: "true"

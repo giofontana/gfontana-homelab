@@ -1,0 +1,47 @@
+# Smoke test for the agents, using the same infinite-mario app the `mario` ApplicationSet
+# deploys to flanders/local-cluster. NOT part of the kustomization; apply by hand:
+#   oc apply -f gitops/clusters/simpsons/infra/platform/argocd-agent/examples/mario.yaml
+# Lives in argocd-hub; destination.name selects the agent (destination-based mapping).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mario-ocp1
+  namespace: argocd-hub
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/giofontana/openshift-quickstarts.git
+    targetRevision: main
+    path: sample-apps/infinite-mario/manifests
+  destination:
+    name: ocp1
+    namespace: infinite-mario
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mario-ocp2
+  namespace: argocd-hub
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/giofontana/openshift-quickstarts.git
+    targetRevision: main
+    path: sample-apps/infinite-mario/manifests
+  destination:
+    name: ocp2
+    namespace: infinite-mario
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
