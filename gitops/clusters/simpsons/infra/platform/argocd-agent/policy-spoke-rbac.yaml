@@ -1,0 +1,57 @@
+# The agent-side Argo CD on each spoke (installed by the ACM gitops-addon) only gets read-only
+# RBAC outside its own namespace, so syncs fail with "forbidden". Grant its application
+# controller cluster-admin on every cluster selected by argo-agent-placement.
+# Kept separate from the ACM-generated argo-agent-argocd-policy so ACM never overwrites it.
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: argo-agent-controller-rbac
+  namespace: argocd-hub
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: AC Access Control
+    policy.open-cluster-management.io/controls: AC-3 Access Enforcement
+spec:
+  disabled: false
+  remediationAction: enforce
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: argo-agent-controller-rbac
+        spec:
+          remediationAction: enforce
+          severity: medium
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRoleBinding
+                metadata:
+                  name: acm-openshift-gitops-argocd-application-controller-cluster-admin
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: cluster-admin
+                subjects:
+                  - kind: ServiceAccount
+                    name: acm-openshift-gitops-argocd-application-controller
+                    namespace: openshift-gitops
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: argo-agent-controller-rbac
+  namespace: argocd-hub
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+placementRef:
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+  name: argo-agent-placement
+subjects:
+  - apiGroup: policy.open-cluster-management.io
+    kind: Policy
+    name: argo-agent-controller-rbac
