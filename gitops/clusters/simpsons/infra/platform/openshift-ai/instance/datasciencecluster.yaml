@@ -33,7 +33,11 @@ spec:
       workbenchNamespace: rhods-notebooks
     dashboard:
       managementState: Managed
+    # llamastackoperator is deprecated in RHOAI 3.5+ (replaced by ogx); the
+    # dashboard gates the Gen AI studio / Playground on the ogx component.
     llamastackoperator:
+      managementState: Removed
+    ogx:
       managementState: Managed
     mlflowoperator:
       managementState: Managed
