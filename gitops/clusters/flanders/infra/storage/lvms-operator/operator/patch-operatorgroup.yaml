@@ -1,0 +1,6 @@
+# The catalog base targets openshift-storage; on flanders LVMS lives in
+# openshift-lvm-storage and openshift-storage does not exist.
+- op: replace
+  path: /spec/targetNamespaces
+  value:
+    - openshift-lvm-storage

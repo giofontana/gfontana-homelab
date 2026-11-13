@@ -9,3 +9,7 @@ patches:
       kind: Subscription
       name: lvms-operator
     path: patch-version.yaml
+  - target:
+      kind: OperatorGroup
+      name: lvms-operator-group
+    path: patch-operatorgroup.yaml
