@@ -1,0 +1,31 @@
+# S3 bucket for ACM Observability (Thanos), stored in Vault at
+# secret/open-cluster-management-observability/thanos-object-storage
+# (properties: bucket, endpoint, access_key, secret_key, insecure)
+# endpoint is host[:port] with no scheme; insecure is true for plain HTTP, false for HTTPS
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: thanos-object-storage
+  namespace: open-cluster-management-observability
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: thanos-object-storage
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        thanos.yaml: |
+          type: s3
+          config:
+            bucket: {{ .bucket | quote }}
+            endpoint: {{ .endpoint | quote }}
+            insecure: {{ .insecure }}
+            access_key: {{ .access_key | quote }}
+            secret_key: {{ .secret_key | quote }}
+  dataFrom:
+    - extract:
+        key: open-cluster-management-observability/thanos-object-storage
