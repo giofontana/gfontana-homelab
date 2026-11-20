@@ -1,0 +1,21 @@
+# The principal propagates AppProjects to agents only when destinations match by name;
+# `name: "*"` is required for that (see ACM multicloud-integrations agent-mode setup).
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argocd-hub
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  sourceRepos:
+    - "*"
+  destinations:
+    - name: "*"
+      namespace: "*"
+      server: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  sourceNamespaces:
+    - argocd-hub

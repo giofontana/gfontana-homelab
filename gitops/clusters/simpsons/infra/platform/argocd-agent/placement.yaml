@@ -1,0 +1,21 @@
+# Clusters managed through the Argo CD agent (pull model). Keep in sync with the
+# NotIn exclusion on openshift-gitops/argo-hub-placement so a cluster is never in both modes.
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: argo-agent-placement
+  namespace: argocd-hub
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  clusterSets:
+    - default
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: name
+              operator: In
+              values:
+                - ocp1
+                - ocp2

@@ -1,0 +1,10 @@
+# Binds the "default" ManagedClusterSet into this namespace so that the
+# Placement below is allowed to select clusters from it. Without a binding,
+# Placement reports NoManagedClusterSetBindings and yields zero decisions.
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  name: default
+  namespace: openshift-gitops
+spec:
+  clusterSet: default

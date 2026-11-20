@@ -32,8 +32,8 @@ gfontana-homelab/
 │   │   │   └── infra/              # Infrastructure by domain
 │   │   │       ├── compute/        # Virtualization, GPU, NFD, node maintenance
 │   │   │       ├── network/        # MetalLB, NMState, OVN config
-│   │   │       ├── observability/  # COO, Loki logging, monitoring
-│   │   │       ├── platform/       # ArgoCD, MTV, OpenShift AI, pipelines
+│   │   │       ├── observability/  # COO, Loki logging, monitoring, ACM observability
+│   │   │       ├── platform/       # ACM, ArgoCD, MTV, OpenShift AI, pipelines
 │   │   │       ├── security/       # cert-manager, Vault, External Secrets, sealed-secrets, OAuth
 │   │   │       └── storage/        # Local storage, ODF (Ceph)
 │   │   └── flanders/               # Spoke cluster
@@ -46,7 +46,7 @@ gfontana-homelab/
 │   │           ├── security/       # cert-manager, Vault, External Secrets, OAuth
 │   │           └── storage/        # LVMS, TrueNAS CSI
 │   └── components/                  # Reusable bases
-│       ├── apps/                    # Application manifests (Frigate, OpenClaw)
+│       ├── apps/                    # Application manifests (Frigate, OpenClaw, vm-sample-acm)
 │       └── infra/                   # Operator subscription bases, Vault Helm values and docs
 ├── governance/
 │   └── policies/                    # ACM governance policies
@@ -98,6 +98,7 @@ Each operator follows a consistent three-layer pattern:
 - **Frigate** — NVR with AI object detection, deployed with CPU or NVIDIA GPU overlay. NFS media storage, TLS via cert-manager/Let's Encrypt. See [Frigate README](gitops/components/apps/frigate/README.md).
 - **OpenClaw** — AI assistant gateway on simpsons, exposed through an edge Route with secrets from Vault. See [OpenClaw README](gitops/components/apps/openclaw/README.md).
 - **Homelab monitoring** — Prometheus (COO MonitoringStack) and Grafana on flanders, scraping the iDRACs, UniFi, TrueNAS, Pi-hole, Home Assistant and the HAProxy/cloudflared VM. See [homelab monitoring README](gitops/components/infra/homelab-monitoring/README.md).
+- **vm-sample-acm** — Sample VM deployed via ACM ApplicationSet with Placement-based scheduling
 - **VMware resources** — ESXi VM definitions for MTV migration
 
 ## Security

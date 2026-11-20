@@ -1,0 +1,26 @@
+# ACM installs the GitOps operator + agent (managed mode) on the selected clusters,
+# issues the mTLS PKI on the hub and registers each agent as an Argo CD cluster
+# (secret cluster-<name> in argocd-hub, server https://<principal>?agentName=<name>).
+apiVersion: apps.open-cluster-management.io/v1beta1
+kind: GitOpsCluster
+metadata:
+  name: argo-agent
+  namespace: argocd-hub
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  argoServer:
+    cluster: local-cluster
+    argoNamespace: argocd-hub
+  placementRef:
+    apiVersion: cluster.open-cluster-management.io/v1beta1
+    kind: Placement
+    name: argo-agent-placement
+  gitopsAddon:
+    enabled: true
+    argoCDAgent:
+      enabled: true
+      mode: managed
+      propagateHubCA: true
+      # serverAddress/serverPort are auto-discovered from the principal Route
+      # (label app.kubernetes.io/part-of=argocd-agent). Set explicitly only if discovery fails.
