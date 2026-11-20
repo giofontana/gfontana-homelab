@@ -70,7 +70,7 @@ Each operator follows a consistent three-layer pattern:
 
 | Operator | Channel | Simpsons | Flanders |
 |----------|---------|:--------:|:--------:|
-| Advanced Cluster Management | release-2.17 | x | |
+| Advanced Cluster Management | release-2.17 | x | x |
 | cert-manager | stable-v1 | x | x |
 | Cluster Observability Operator | stable | x | x |
 | External Secrets Operator | stable-v1 | x | x |
