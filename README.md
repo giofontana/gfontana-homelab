@@ -42,7 +42,7 @@ gfontana-homelab/
 │   │           ├── compute/        # Virtualization
 │   │           ├── platform/       # ArgoCD
 │   │           ├── network/        # NMState, OVN config
-│   │           ├── observability/  # Persistent monitoring, COO homelab MonitoringStack, Grafana
+│   │           ├── observability/  # Persistent monitoring, COO homelab MonitoringStack, Grafana, ACM observability
 │   │           ├── security/       # cert-manager, Vault, External Secrets, OAuth
 │   │           └── storage/        # LVMS, TrueNAS CSI
 │   └── components/                  # Reusable bases
