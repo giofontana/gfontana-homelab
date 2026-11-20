@@ -32,7 +32,7 @@ gfontana-homelab/
 │   │   │   └── infra/              # Infrastructure by domain
 │   │   │       ├── compute/        # Virtualization, GPU, NFD, node maintenance
 │   │   │       ├── network/        # MetalLB, NMState, OVN config
-│   │   │       ├── observability/  # COO, Loki logging, monitoring, ACM observability
+│   │   │       ├── observability/  # COO, Loki logging, monitoring
 │   │   │       ├── platform/       # ACM, ArgoCD, MTV, OpenShift AI, pipelines
 │   │   │       ├── security/       # cert-manager, Vault, External Secrets, sealed-secrets, OAuth
 │   │   │       └── storage/        # Local storage, ODF (Ceph)
