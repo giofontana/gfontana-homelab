@@ -1,7 +1,8 @@
 # S3 bucket for ACM Observability (Thanos), stored in Vault at
 # secret/open-cluster-management-observability/thanos-object-storage
-# (properties: bucket, endpoint, access_key, secret_key, insecure)
+# (properties: bucket, endpoint, access_key, secret_key, insecure, insecure_skip_verify)
 # endpoint is host[:port] with no scheme; insecure is true for plain HTTP, false for HTTPS
+# insecure_skip_verify is optional (defaults to false); true skips TLS certificate verification
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
@@ -26,6 +27,9 @@ spec:
             insecure: {{ .insecure }}
             access_key: {{ .access_key | quote }}
             secret_key: {{ .secret_key | quote }}
+            http_config:
+              tls_config:
+                insecure_skip_verify: {{ .insecure_skip_verify | default "false" }}
   dataFrom:
     - extract:
         key: open-cluster-management-observability/thanos-object-storage
