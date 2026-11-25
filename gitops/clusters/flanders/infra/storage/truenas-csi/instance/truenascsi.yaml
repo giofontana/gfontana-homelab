@@ -7,8 +7,8 @@ spec:
   truenasURL: "wss://192.168.1.3/api/current"
   credentialsSecret: truenas-api-credentials
   defaultPool: pool1
-  nfsServer: "192.168.1.3"
-  # TrueNAS address on VLAN 101 (same L2 as the nodes) so iSCSI is not routed via the gateway
+  # TrueNAS address on VLAN 101 (same L2 as the nodes) so NFS/iSCSI are not routed via the gateway
+  nfsServer: "192.168.101.3"
   iscsiPortal: "192.168.101.3:3260"
   # TrueNAS serves a self-signed certificate by default
   insecureSkipTLS: true
